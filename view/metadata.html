@@ -25,19 +25,37 @@
         <form class="mt-5" action="/metadata" method="POST">
           <div class="mb-3">
             <label for="exampleInputEmail1" class="form-label">Entity ID</label>
-            <input type="text" class="form-control" id="entityID" aria-describedby="emailHelp" required>
+            {{ if . }}
+            <input type="text" name="entityID" class="form-control" id="entityID" value="{{ .EntityID }}" required>
+            {{ else }}
+            <input type="text" name="entityID" class="form-control" id="entityID" required>
+            {{ end }}
           </div>
           <div class="mb-3">
             <label for="exampleInputPassword1" class="form-label">X509Certificate</label>
-            <input type="text" class="form-control" id="certificate" required>
+            {{ if . }}
+            <input type="text" name="certificate" class="form-control" id="certificate" value="{{ .Certificate }}"
+              required>
+            {{ else }}
+            <input type="text" name="certificate" class="form-control" id="certificate" required>
+            {{ end }}
           </div>
           <div class="mb-3">
             <label for="exampleInputPassword1" class="form-label">SSO URL</label>
-            <input type="text" class="form-control" id="ssourl" required>
+            {{ if . }}
+            <input type="text" name="ssourl" class="form-control" id="ssourl" value="{{ .SSOURL }}" required>
+            {{ else }}
+            <input type="text" name="ssourl" class="form-control" id="ssourl" required>
+            {{ end }}
           </div>
           <button type="submit" class="btn btn-primary">送信</button>
         </form>
       </div>
+    </div>
+    <div class="mt-5">
+      <a href="/">
+        <button type="button" class="btn btn-outline-primary">戻る</button>
+      </a>
     </div>
   </div>
 </body>
