@@ -12,6 +12,9 @@ const defaultCompanyID = 1
 // IdP のメタデータ設定ページの表示
 func Metadata(c echo.Context) error {
 	m := model.FindMetadtaByCompanyID(defaultCompanyID)
+	if m == nil {
+		m = &model.Metadata{CompanyID: defaultCompanyID}
+	}
 	return c.Render(http.StatusOK, "metadata.html", m)
 }
 

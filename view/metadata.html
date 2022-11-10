@@ -15,7 +15,24 @@
     <h1>メタデータの設定</h1>
     <div class="card mt-5" style="width: 30rem;">
       <div class="card-header">
-        フォーム
+        SP メタデータ
+      </div>
+      <div class="card-body">
+        <div class="mb-3">
+          <label or="spEntityID" class="form-label">SP Entity ID</label>
+          <input type="text" name="spEntityID" class="form-control" id="spEntityID"
+            value="http://localhost:3000/{{ .CompanyID }}" readonly>
+        </div>
+        <div class="mb-3">
+          <label for="acsurl" class="form-label">ACS URL</label>
+          <input type="text" name="acsurl" class="form-control" id="acsurl"
+            value="http://localhost:3000/login/saml/{{ .CompanyID }}" readonly>
+        </div>
+      </div>
+    </div>
+    <div class="card mt-5" style="width: 30rem;">
+      <div class="card-header">
+        IdP メタデータ
       </div>
       <div class="card-body">
         <p class="mb-0">IdP から取得したメタデータファイル（.xml）をアップロードしてください</p>
@@ -24,35 +41,23 @@
 
         <form class="mt-5" action="/metadata" method="POST">
           <div class="mb-3">
-            <label for="exampleInputEmail1" class="form-label">Entity ID</label>
-            {{ if . }}
+            <label for="entityID" class="form-label">IdP Entity ID</label>
             <input type="text" name="entityID" class="form-control" id="entityID" value="{{ .EntityID }}" required>
-            {{ else }}
-            <input type="text" name="entityID" class="form-control" id="entityID" required>
-            {{ end }}
           </div>
           <div class="mb-3">
-            <label for="exampleInputPassword1" class="form-label">X509Certificate</label>
-            {{ if . }}
+            <label for="certificate" class="form-label">X509Certificate</label>
             <input type="text" name="certificate" class="form-control" id="certificate" value="{{ .Certificate }}"
               required>
-            {{ else }}
-            <input type="text" name="certificate" class="form-control" id="certificate" required>
-            {{ end }}
           </div>
           <div class="mb-3">
-            <label for="exampleInputPassword1" class="form-label">SSO URL</label>
-            {{ if . }}
+            <label for="ssourl" class="form-label">SSO URL</label>
             <input type="text" name="ssourl" class="form-control" id="ssourl" value="{{ .SSOURL }}" required>
-            {{ else }}
-            <input type="text" name="ssourl" class="form-control" id="ssourl" required>
-            {{ end }}
           </div>
           <button type="submit" class="btn btn-primary">送信</button>
         </form>
       </div>
     </div>
-    <div class="mt-5">
+    <div class="my-5">
       <a href="/">
         <button type="button" class="btn btn-outline-primary">戻る</button>
       </a>
