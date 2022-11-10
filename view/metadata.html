@@ -28,12 +28,12 @@
         <div class="mb-3">
           <label for="acsurl" class="form-label">ACS URL</label>
           <input type="text" name="acsurl" class="form-control" id="acsurl"
-            value="http://localhost:3000/login/saml/{{ .CompanyID }}" readonly>
+            value="http://localhost:3000/login/saml/companies/{{ .CompanyID }}" readonly>
         </div>
         <div class="mb-3">
           <label for="acsurl" class="form-label">SLO URL</label>
           <input type="text" name="acsurl" class="form-control" id="acsurl"
-            value="http://localhost:3000/logout/saml/{{ .CompanyID }}" readonly>
+            value="http://localhost:3000/logout/saml/companies/{{ .CompanyID }}" readonly>
         </div>
       </div>
     </div>

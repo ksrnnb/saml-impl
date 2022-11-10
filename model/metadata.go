@@ -42,3 +42,7 @@ func (m *Metadata) Save() {
 		}
 	}
 }
+
+func (m *Metadata) Valid() bool {
+	return m.ID != 0 && m.CompanyID != 0 && m.EntityID != "" && m.Certificate != "" && m.SSOURL != ""
+}
