@@ -18,6 +18,8 @@
         SP メタデータ
       </div>
       <div class="card-body">
+        <p>下記の値を <a href="http://localhost:8080/admin/master/console" target="_blank" rel="noopener noreferrer">IdP</a>
+          に登録してください</p>
         <div class="mb-3">
           <label or="spEntityID" class="form-label">SP Entity ID</label>
           <input type="text" name="spEntityID" class="form-control" id="spEntityID"
@@ -27,6 +29,11 @@
           <label for="acsurl" class="form-label">ACS URL</label>
           <input type="text" name="acsurl" class="form-control" id="acsurl"
             value="http://localhost:3000/login/saml/{{ .CompanyID }}" readonly>
+        </div>
+        <div class="mb-3">
+          <label for="acsurl" class="form-label">SLO URL</label>
+          <input type="text" name="acsurl" class="form-control" id="acsurl"
+            value="http://localhost:3000/logout/saml/{{ .CompanyID }}" readonly>
         </div>
       </div>
     </div>
@@ -53,7 +60,7 @@
             <label for="ssourl" class="form-label">SSO URL</label>
             <input type="text" name="ssourl" class="form-control" id="ssourl" value="{{ .SSOURL }}" required>
           </div>
-          <button type="submit" class="btn btn-primary">送信</button>
+          <button type="submit" class="btn btn-primary">更新する</button>
         </form>
       </div>
     </div>
