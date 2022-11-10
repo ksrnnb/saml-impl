@@ -1,6 +1,9 @@
 package controller
 
 import (
+	"encoding/base64"
+	"encoding/xml"
+	"fmt"
 	"net/http"
 
 	"github.com/ksrnnb/saml/model"
@@ -15,6 +18,17 @@ func ShowLogin(c echo.Context) error {
 	return c.Render(http.StatusOK, "login.html", m)
 }
 
-func StartSPSamlLogin(c echo.Context) error {
-	return c.String(http.StatusOK, "ok")
+func HandleSamlResponse(c echo.Context) error {
+	encRes := c.FormValue("SAMLResponse")
+	decRes, _ := base64.StdEncoding.DecodeString(encRes)
+	res := SamlResponse{}
+
+	xml.Unmarshal(decRes, &res.Response)
+
+	fmt.Printf("%+v\n", res)
+	return c.Redirect(http.StatusFound, "/")
+}
+
+func (r SamlResponse) Validate() error {
+	return nil
 }

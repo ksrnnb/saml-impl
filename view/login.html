@@ -15,21 +15,10 @@
     <h1>ログイン</h1>
     <div class="card mt-5" style="width: 30rem;">
       <div class="card-header">
-        SP-initiated ログイン
+        IdP-initiated ログイン
       </div>
       <div class="card-body">
-        {{ if .Valid }}
-        <a href="/login/saml">
-          <button type="button" class="btn btn-primary">SP-initiated ログイン</button>
-        </a>
-        {{ else }}
-        <div class="alert alert-danger" role="alert">
-          メタデータが登録されていません。先にメタデータを登録してください。
-        </div>
-        <p>
-          <a href="/metadata">設定ページ</a>
-        </p>
-        {{ end }}
+        IdP のSSO ログインページに遷移してください
       </div>
     </div>
     <div class="my-5">

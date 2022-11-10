@@ -12,5 +12,6 @@ func RegisterRoutes(e *echo.Echo) {
 	e.POST("/metadata", controller.CreateMetadata)
 
 	e.GET("/login", controller.ShowLogin)
-	e.GET("/login/saml", controller.StartSPSamlLogin)
+	// e.GET("/login/saml", controller.StartSPSamlLogin)
+	e.POST("/login/saml/companies/:id", controller.HandleSamlResponse)
 }
