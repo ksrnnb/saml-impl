@@ -1,9 +1,18 @@
 package model
 
+import "strconv"
+
+const (
+	baseSPEntityID = "http://localhost:3000/"
+	baseACSURL     = "http://localhost:3000/login/saml/companies/"
+	baseSLOURL     = "http://localhost:3000/logout/saml/companies/"
+)
+
+// Metadata is metadata of IdP
 type Metadata struct {
 	ID          int
 	CompanyID   int
-	EntityID    string
+	EntityID    string // idp entityID
 	Certificate string
 	SSOURL      string
 }
@@ -45,4 +54,16 @@ func (m *Metadata) Save() {
 
 func (m *Metadata) Valid() bool {
 	return m.ID != 0 && m.CompanyID != 0 && m.EntityID != "" && m.Certificate != "" && m.SSOURL != ""
+}
+
+func (m *Metadata) SPEntityID() string {
+	return baseSPEntityID + strconv.Itoa(m.CompanyID)
+}
+
+func (m *Metadata) ACSURL() string {
+	return baseACSURL + strconv.Itoa(m.CompanyID)
+}
+
+func (m *Metadata) SLOURL() string {
+	return baseSLOURL + strconv.Itoa(m.CompanyID)
 }

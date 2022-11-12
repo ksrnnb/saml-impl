@@ -22,18 +22,15 @@
           に登録してください</p>
         <div class="mb-3">
           <label or="spEntityID" class="form-label">SP Entity ID</label>
-          <input type="text" name="spEntityID" class="form-control" id="spEntityID"
-            value="http://localhost:3000/{{ .CompanyID }}" readonly>
+          <input type="text" name="spEntityID" class="form-control" id="spEntityID" value="{{ .SPEntityID }}" readonly>
         </div>
         <div class="mb-3">
           <label for="acsurl" class="form-label">ACS URL</label>
-          <input type="text" name="acsurl" class="form-control" id="acsurl"
-            value="http://localhost:3000/login/saml/companies/{{ .CompanyID }}" readonly>
+          <input type="text" name="acsurl" class="form-control" id="acsurl" value="{{ .ACSURL }}" readonly>
         </div>
         <div class="mb-3">
           <label for="acsurl" class="form-label">SLO URL</label>
-          <input type="text" name="acsurl" class="form-control" id="acsurl"
-            value="http://localhost:3000/logout/saml/companies/{{ .CompanyID }}" readonly>
+          <input type="text" name="acsurl" class="form-control" id="acsurl" value="{{ .SLOURL }}" readonly>
         </div>
       </div>
     </div>

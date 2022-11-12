@@ -18,7 +18,15 @@
         IdP-initiated ログイン
       </div>
       <div class="card-body">
-        IdP のSSO ログインページに遷移してください
+        {{ if .EntityID }}
+        <p>
+          IdP のSSO ログインページに遷移してください（KeyCloak の Target IDP initiated SSO URL）
+        </p>
+        {{ else }}
+        <div class="alert alert-danger" role="alert">
+          IdP のメタデータが登録されていません
+        </div>
+        {{ end }}
       </div>
     </div>
     <div class="my-5">
