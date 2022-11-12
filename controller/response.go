@@ -50,8 +50,8 @@ type SubjectConfirmationData struct {
 }
 
 type Conditions struct {
-	NotBefore           string
-	NotOnOrAfter        string
+	NotBefore           string `xml:"NotBefore,attr"`
+	NotOnOrAfter        string `xml:"NotOnOrAfter,attr"`
 	AudienceRestriction AudienceRestriction
 }
 
