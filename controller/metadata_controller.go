@@ -1,15 +1,12 @@
 package controller
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/ksrnnb/saml/model"
 	"github.com/ksrnnb/saml/session"
 	"github.com/labstack/echo/v4"
 )
-
-const defaultCompanyID = 1
 
 type MetadataParam struct {
 	Metadata       *model.Metadata
@@ -18,14 +15,17 @@ type MetadataParam struct {
 
 // IdP のメタデータ設定ページの表示
 func Metadata(c echo.Context) error {
-	m := model.FindMetadtaByCompanyID(defaultCompanyID)
+	u, err := authenticate(c)
+	if err != nil {
+		return err
+	}
+	m := model.FindMetadtaByCompanyID(u.CompanyID)
 	if m == nil {
-		m = &model.Metadata{CompanyID: defaultCompanyID}
+		m = &model.Metadata{CompanyID: u.CompanyID}
 	}
 	sm, err := session.Get(c, "success")
 	if err != nil {
-		fmt.Printf("session get error: %v\n", err)
-		return err
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.Render(
@@ -40,14 +40,19 @@ func Metadata(c echo.Context) error {
 // IdP から取得したメタデータの登録
 // 既に存在する場合は上書き
 func CreateMetadata(c echo.Context) error {
+	// NOTE: need to protect from csrf
+	u, err := authenticate(c)
+	if err != nil {
+		return err
+	}
 	m := model.NewMetadata(
-		defaultCompanyID,
+		u.CompanyID,
 		c.FormValue("entityID"),
 		c.FormValue("certificate"),
 		c.FormValue("ssourl"),
 	)
 	m.Save()
-	err := session.Set(c, "success", "メタデータを更新しました")
+	err = session.Set(c, "success", "メタデータを更新しました")
 	if err != nil {
 		return err
 	}

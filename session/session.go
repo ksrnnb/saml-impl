@@ -30,7 +30,7 @@ func Set(c echo.Context, key string, value string) error {
 		}
 	}
 
-	sessionStore[sid] = map[string]string{key: value}
+	sessionStore[sid][key] = value
 	c.SetCookie(
 		&http.Cookie{
 			Name:  sessionKey,
