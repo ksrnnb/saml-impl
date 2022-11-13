@@ -50,6 +50,11 @@ func Get(c echo.Context, key string) (string, error) {
 	if sid == "" {
 		return "", nil
 	}
+	if key == "success" || key == "error" {
+		v := sessionStore[sid][key]
+		delete(sessionStore[sid], key)
+		return v, nil
+	}
 	return sessionStore[sid][key], nil
 }
 

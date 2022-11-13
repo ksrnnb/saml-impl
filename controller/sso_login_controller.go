@@ -58,6 +58,7 @@ func HandleSamlResponse(c echo.Context) error {
 		return c.Redirect(http.StatusFound, "/login")
 	}
 	session.Set(c, "userId", u.ID)
+	session.Set(c, "success", "SAML 認証に成功しました")
 
 	redirect := "/"
 	rs := c.FormValue("RelayState")
