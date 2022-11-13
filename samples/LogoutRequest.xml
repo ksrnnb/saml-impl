@@ -1,0 +1,20 @@
+<samlp:LogoutRequest xmlns:samlp="urn:oasis:names:tc:SAML:2.0:protocol" xmlns="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" Destination="http://localhost:3000/logout/saml/companies/1" ID="ID_66a37c17-bd53-4aa3-abaa-30d3d1b2bc37" IssueInstant="2022-11-13T21:40:52.920Z" Version="2.0"><saml:Issuer>http://localhost:8080/realms/master</saml:Issuer><dsig:Signature xmlns:dsig="http://www.w3.org/2000/09/xmldsig#"><dsig:SignedInfo><dsig:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/><dsig:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"/><dsig:Reference URI="#ID_66a37c17-bd53-4aa3-abaa-30d3d1b2bc37"><dsig:Transforms><dsig:Transform Algorithm="http://www.w3.org/2000/09/xmldsig#enveloped-signature"/><dsig:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"/></dsig:Transforms><dsig:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"/><dsig:DigestValue>a/RmciMZz8ps+JcC4WPIesGQjbnErLLsDg20+HZtqvk=</dsig:DigestValue></dsig:Reference></dsig:SignedInfo><dsig:SignatureValue>AF6LVffM36gJhDpKntpuggLw/3gXZJQhn1UvyyGGfniSUaUjhxMr7gHiI44TmCJXhcG5ShWpJEr0&#13;
+IcD/vsKRplJeRQbnvRYBzfQFJmznTIshw+m+V4+8EBSG6u99Dt7WDyl2AHfEciVZwNYHAAXUI3Ie&#13;
+WmZJatXp0tyDVFhFtHM5saKT0KC/FNXEFzxoo5iAzLWT7F66aR6zLx8DvapQMbvDDhBjy7u+azXX&#13;
+7KpS5Nn88kwk3i9fCxp+uAurhGU8/2emA/zxtZO209kDSdI5evmQY88rmUV4K4PcWV6fDqtd0Xcl&#13;
+dlAzAtTEq1M1vFUQiRINCQg6UtjxPfMgA4WBhA==</dsig:SignatureValue><dsig:KeyInfo><dsig:KeyName>9Zf7wiW0E1AHRxElaOQWqluBzEna1qi6QW0HfPXITEI</dsig:KeyName><dsig:X509Data><dsig:X509Certificate>MIICmzCCAYMCBgGEctxVNDANBgkqhkiG9w0BAQsFADARMQ8wDQYDVQQDDAZtYXN0ZXIwHhcNMjIx&#13;
+MTEzMjExNzMzWhcNMzIxMTEzMjExOTEzWjARMQ8wDQYDVQQDDAZtYXN0ZXIwggEiMA0GCSqGSIb3&#13;
+DQEBAQUAA4IBDwAwggEKAoIBAQC2ZbTpy7IOi6wnpWBtNe+rAGjlPTsWpn257oU4Pbl3RkwOvTms&#13;
+cmOvTwagZwnYgEh+RaRggiesUGYSYNJLataozBudqTiaW2MDFaCB4TAhhPj1RB15IAmNlcfqn60O&#13;
+4vdZDmdABqmFt8LVkQIB0mfafXFOwjJ29PKTTROiOx4Y4nBGEWYICkBh94vEIGNX60dfGJFgki+7&#13;
+umhg7FSY2BPaTictWCn/VrmYgdG4AA54NppFMfOZ6x2EUJvUWbQOfZZGNKNO/EWpzYulaSmNob24&#13;
+CquKkGUBI4EKjJ1PSYev21Bz056bL6IKTL48yhd1S8mPkaYDm9/yRUGBVG3k5tFtAgMBAAEwDQYJ&#13;
+KoZIhvcNAQELBQADggEBAJBX0grrVzyddXrG6aIpY+6J8UznaIqZOHrGhpoymgJsAZYMvBKfWl3y&#13;
+keBYcs5FMyekuJvaGNMGjpE7MFShn0vxTpQZMg5UBYdrj3PMtySHvFYtq909VO3claJ+d5zZ1nAg&#13;
+WRR5zZbK+B7EMtbCJfd/8S9uVLW+VDlgBirhZQVA7KxWB4o0q5OwuA/OGXgS+Lqo5gxzOnWVK1xU&#13;
+PKn/RBykBaM1IJPs9elP6Hn8KZwHxLhc4hV2ZodpN7Kj5QpoHkzJxXTmdL8gS2x/XXoCLhnak4a1&#13;
+m7M4EMfhM3mJoIcNOQCgiaE0xsDcQql/KsUNdPOOGobi9YV2bQse4TM5uUU=</dsig:X509Certificate></dsig:X509Data><dsig:KeyValue><dsig:RSAKeyValue><dsig:Modulus>tmW06cuyDousJ6VgbTXvqwBo5T07FqZ9ue6FOD25d0ZMDr05rHJjr08GoGcJ2IBIfkWkYIInrFBm&#13;
+EmDSS2rWqMwbnak4mltjAxWggeEwIYT49UQdeSAJjZXH6p+tDuL3WQ5nQAaphbfC1ZECAdJn2n1x&#13;
+TsIydvTyk00TojseGOJwRhFmCApAYfeLxCBjV+tHXxiRYJIvu7poYOxUmNgT2k4nLVgp/1a5mIHR&#13;
+uAAOeDaaRTHzmesdhFCb1Fm0Dn2WRjSjTvxFqc2LpWkpjaG9uAqripBlASOBCoydT0mHr9tQc9Oe&#13;
+my+iCky+PMoXdUvJj5GmA5vf8kVBgVRt5ObRbQ==</dsig:Modulus><dsig:Exponent>AQAB</dsig:Exponent></dsig:RSAKeyValue></dsig:KeyValue></dsig:KeyInfo></dsig:Signature><saml:NameID Format="urn:oasis:names:tc:SAML:2.0:nameid-format:persistent">G-a1a8e14e-13e4-44dc-b405-8908f8ec66f6</saml:NameID><samlp:SessionIndex>9f043589-72c5-416c-ac37-c172f23a6b65::f2f32ddf-e832-4a2f-ac38-091cb7541bf6</samlp:SessionIndex></samlp:LogoutRequest>
