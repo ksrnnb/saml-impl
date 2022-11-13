@@ -20,4 +20,5 @@ func RegisterRoutes(e *echo.Echo) {
 
 	// e.GET("/login/saml", controller.StartSPSamlLogin)
 	e.POST("/login/saml/companies/:id", controller.HandleSamlResponse)
+	e.POST("/logout/saml/companies/:id", controller.HandleLogoutResponse)
 }
