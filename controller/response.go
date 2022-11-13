@@ -27,6 +27,7 @@ type Assertion struct {
 	Conditions         Conditions
 	AuthnStatement     AuthnStatement
 	AttributeStatement AttributeStatement
+	Signature          Signature
 }
 
 type Subject struct {
@@ -127,4 +128,8 @@ func (r SamlResponse) Audience() string {
 
 func (r SamlResponse) SessionNotOnOrAfter() (time.Time, error) {
 	return time.Parse(time.RFC3339, r.Response.Assertion.AuthnStatement.SessionNotOnOrAfter)
+}
+
+func (r SamlResponse) AssertionSignature() Signature {
+	return r.Response.Assertion.Signature
 }

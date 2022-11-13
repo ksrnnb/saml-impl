@@ -28,13 +28,6 @@ func ShowSSOLogin(c echo.Context) error {
 
 // HTTP POST Binding
 func HandleSamlResponse(c echo.Context) error {
-	encRes := c.FormValue("SAMLResponse")
-	decRes, _ := base64.StdEncoding.DecodeString(encRes)
-	res := SamlResponse{}
-	if err := xml.Unmarshal(decRes, &res.Response); err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-
 	cid, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
@@ -43,6 +36,13 @@ func HandleSamlResponse(c echo.Context) error {
 	if md == nil {
 		return c.String(http.StatusNotFound, "metadata is not found")
 	}
+
+	res, err := getSAMLResponse(c)
+	if err != nil {
+		return c.String(http.StatusBadRequest, err.Error())
+	}
+
+	fmt.Printf("%+v\n", res.AssertionSignature())
 
 	if err := res.Validate(md); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
@@ -65,6 +65,8 @@ func HandleSamlResponse(c echo.Context) error {
 		session.Set(c, "error", "予期しないエラーが発生しました")
 		return c.Redirect(http.StatusFound, "/login")
 	}
+	// TODO: set session limit
+	// TODO: use session index??
 	session.Set(c, "userId", u.ID)
 	session.Set(c, "success", "SAML 認証に成功しました")
 
@@ -121,4 +123,14 @@ func (r SamlResponse) Validate(md *model.Metadata) error {
 		return fmt.Errorf("subject NotOnOrAfter: %v, now: %v", cnb, time.Now().Format(time.RFC3339))
 	}
 	return nil
+}
+
+func getSAMLResponse(c echo.Context) (SamlResponse, error) {
+	encRes := c.FormValue("SAMLResponse")
+	decRes, _ := base64.StdEncoding.DecodeString(encRes)
+	res := SamlResponse{}
+	if err := xml.Unmarshal(decRes, &res.Response); err != nil {
+		return SamlResponse{}, err
+	}
+	return res, nil
 }
