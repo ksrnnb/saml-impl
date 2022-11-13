@@ -80,8 +80,17 @@ type Attribute struct {
 	AttributeValue string
 }
 
-func (r SamlResponse) Email() string {
+func (r SamlResponse) NameID() string {
 	return r.Response.Assertion.Subject.NameID.Value
+}
+
+func (r SamlResponse) Email() string {
+	for _, attr := range r.Response.Assertion.AttributeStatement.Attributes {
+		if attr.Name == "email" {
+			return attr.AttributeValue
+		}
+	}
+	return ""
 }
 
 func (r SamlResponse) Destination() string {
