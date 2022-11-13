@@ -16,7 +16,7 @@ type MetadataParam struct {
 // IdP のメタデータ設定ページの表示
 func Metadata(c echo.Context) error {
 	u, err := authenticate(c)
-	if err != nil {
+	if err != nil || u == nil {
 		return err
 	}
 	m := model.FindMetadtaByCompanyID(u.CompanyID)
@@ -42,7 +42,7 @@ func Metadata(c echo.Context) error {
 func CreateMetadata(c echo.Context) error {
 	// NOTE: need to protect from csrf
 	u, err := authenticate(c)
-	if err != nil {
+	if err != nil || u == nil {
 		return err
 	}
 	m := model.NewMetadata(

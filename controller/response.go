@@ -80,6 +80,10 @@ type Attribute struct {
 	AttributeValue string
 }
 
+func (r SamlResponse) Email() string {
+	return r.Response.Assertion.Subject.NameID.Value
+}
+
 func (r SamlResponse) Destination() string {
 	return r.Response.Destination
 }

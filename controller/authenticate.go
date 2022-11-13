@@ -20,13 +20,13 @@ func authenticate(c echo.Context) (*model.User, error) {
 	return u, nil
 }
 
-func notAuthenticate(c echo.Context) error {
+func notAuthenticate(c echo.Context) (string, error) {
 	uid, err := session.Get(c, "userId")
 	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		return "", c.String(http.StatusInternalServerError, err.Error())
 	}
 	if uid != "" {
-		return c.Redirect(http.StatusFound, "/")
+		return uid, c.Redirect(http.StatusFound, "/")
 	}
-	return nil
+	return "", nil
 }

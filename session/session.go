@@ -29,7 +29,9 @@ func Set(c echo.Context, key string, value string) error {
 			return err
 		}
 	}
-
+	if sessionStore[sid] == nil {
+		sessionStore[sid] = map[string]string{}
+	}
 	sessionStore[sid][key] = value
 	c.SetCookie(
 		&http.Cookie{

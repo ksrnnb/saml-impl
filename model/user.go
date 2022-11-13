@@ -10,6 +10,7 @@ type User struct {
 	ID        string
 	Password  string
 	CompanyID int
+	Email     string
 }
 
 func init() {
@@ -17,6 +18,7 @@ func init() {
 		ID:        "demo",
 		Password:  "password",
 		CompanyID: defaultCompanyID,
+		Email:     "demo@test.com",
 	}
 	userStore = append(userStore, demoUser)
 }
@@ -24,6 +26,15 @@ func init() {
 func FindUser(id string) *User {
 	for _, u := range userStore {
 		if u.ID == id {
+			return u
+		}
+	}
+	return nil
+}
+
+func FindUserByEmail(email string) *User {
+	for _, u := range userStore {
+		if u.Email == email {
 			return u
 		}
 	}

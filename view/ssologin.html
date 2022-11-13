@@ -18,10 +18,13 @@
         IdP-initiated ログイン
       </div>
       <div class="card-body">
-        {{ if .EntityID }}
+        {{ if . }}
         <p>
           一度ログアウトしてから、 IdP のSSO ログインページに遷移してください（KeyCloak の Target IDP initiated SSO URL）
         </p>
+        <form action="/logout" method="POST">
+          <button type="submit" class="btn btn-outline-primary">ログアウト</button>
+        </form>
         {{ else }}
         <div class="alert alert-danger" role="alert">
           IdP のメタデータが登録されていません
