@@ -31,20 +31,24 @@ func HandleSamlResponse(c echo.Context) error {
 	decRes, _ := base64.StdEncoding.DecodeString(encRes)
 	res := SamlResponse{}
 	if err := xml.Unmarshal(decRes, &res.Response); err != nil {
-		return err
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	cid, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
-		return err
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 	md := model.FindMetadtaByCompanyID(cid)
+	if md == nil {
+		return c.String(http.StatusNotFound, "metadata is not found")
+	}
+
 	if err := res.Validate(md); err != nil {
-		return err
+
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	// TODO: issue session
-
 	redirect := "/"
 	rs := c.FormValue("RelayState")
 	if rs != "" {
@@ -72,30 +76,30 @@ func (r SamlResponse) Validate(md *model.Metadata) error {
 
 	cnb, err := r.ConditionNotBefore()
 	if err != nil {
-		fmt.Printf("%+v\n", r.Response.Assertion.Conditions)
-		return fmt.Errorf("condition NotBefore: %v", err)
+		return fmt.Errorf("condition NotBefore: %v, now: %v", err, time.Now().Format(time.RFC3339))
 	}
 	cnooa, err := r.ConditionNotOnOrAfter()
 	if err != nil {
-		return fmt.Errorf("condition NotOnOrAfter: %v", err)
+		return fmt.Errorf("parse error: condition NotOnOrAfter: %v, now: %v", err, time.Now().Format(time.RFC3339))
 	}
 	snooa, err := r.SubjectNotOnOrAfter()
 	if err != nil {
-		return fmt.Errorf("subject NotOnOrAfter: %v", err)
+		return fmt.Errorf("parse error: subject NotOnOrAfter: %v, now: %v", err, time.Now().Format(time.RFC3339))
 	}
 	_, err = r.SessionNotOnOrAfter()
 	if err != nil {
-		return fmt.Errorf("session NotOnOrAfter: %v", err)
+		return fmt.Errorf("parse error: session NotOnOrAfter: %v, now: %v", err, time.Now().Format(time.RFC3339))
 	}
 	now := time.Now()
+
 	if now.Before(cnb) {
-		return fmt.Errorf("condition NotBefore: %v", cnb)
+		return fmt.Errorf("condition NotBefore: %v, now: %v", cnb, time.Now().Format(time.RFC3339))
 	}
-	if !cnooa.Before(now) {
-		return fmt.Errorf("condition NotOnOrAfter: %v", cnb)
+	if !now.Before(cnooa) {
+		return fmt.Errorf("condition NotOnOrAfter: %v, now: %v", cnb, time.Now().Format(time.RFC3339))
 	}
-	if !snooa.Before(now) {
-		return fmt.Errorf("subject NotOnOrAfter: %v", cnb)
+	if !now.Before(snooa) {
+		return fmt.Errorf("subject NotOnOrAfter: %v, now: %v", cnb, time.Now().Format(time.RFC3339))
 	}
 	return nil
 }
