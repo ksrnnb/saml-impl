@@ -48,11 +48,19 @@ func HandleSamlResponse(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	u := model.FindUserByEmail(res.Email())
+	u := model.FindUserByPersistentID(res.NameID())
 	if u == nil {
-		session.Set(c, "error", "IdP のメールアドレスと一致するユーザーがみつかりませんでした")
-		return c.Redirect(http.StatusFound, "/login")
+		// IdP と SP の間で persistent id による紐づきがまだの場合は
+		// メールアドレスで検索して紐付けを行う
+		u = model.FindUserByEmail(res.Email())
+		if u == nil {
+			session.Set(c, "error", "IdP のメールアドレスと一致するユーザーがみつかりませんでした")
+			return c.Redirect(http.StatusFound, "/login")
+		}
+		u.PersistentID = res.NameID()
+		u.Save()
 	}
+
 	if err := session.Clear(c); err != nil {
 		session.Set(c, "error", "予期しないエラーが発生しました")
 		return c.Redirect(http.StatusFound, "/login")

@@ -7,10 +7,11 @@ var userStore []*User
 const defaultCompanyID = 1
 
 type User struct {
-	ID        string
-	Password  string
-	CompanyID int
-	Email     string
+	ID           string
+	Password     string
+	CompanyID    int
+	Email        string
+	PersistentID string
 }
 
 func init() {
@@ -39,6 +40,23 @@ func FindUserByEmail(email string) *User {
 		}
 	}
 	return nil
+}
+
+func FindUserByPersistentID(pid string) *User {
+	for _, u := range userStore {
+		if u.PersistentID == pid {
+			return u
+		}
+	}
+	return nil
+}
+
+func (u *User) Save() {
+	for i, user := range userStore {
+		if user.ID == u.ID {
+			userStore[i] = u
+		}
+	}
 }
 
 func (u *User) ValidatePassword(pwd string) error {
