@@ -1,6 +1,15 @@
 package controller
 
-import "time"
+import (
+	"encoding/base64"
+	"encoding/xml"
+	"errors"
+	"fmt"
+	"time"
+
+	"github.com/ksrnnb/saml/model"
+	"github.com/labstack/echo/v4"
+)
 
 type SamlResponse struct {
 	Response Response
@@ -11,6 +20,7 @@ type Response struct {
 	Issuer      string
 	Status      Status
 	Assertion   Assertion
+	Signature   Signature
 }
 
 type Status struct {
@@ -76,9 +86,16 @@ type AttributeStatement struct {
 }
 
 type Attribute struct {
-	Name           string `xml:"Name,attr"`
-	NameFormat     string `xml:"NameFormat,attr"`
-	AttributeValue string
+	Name           string         `xml:"Name,attr"`
+	NameFormat     string         `xml:"NameFormat,attr"`
+	AttributeValue AttributeValue `xml:"AttributeValue"`
+}
+
+type AttributeValue struct {
+	XS    string `xml:"xs,attr"`
+	XSI   string `xml:"xsi,attr"`
+	Type  string `xml:"https://www.w3.org/2001/XMLSchema-instance type,attr"`
+	Value string `xml:",chardata"`
 }
 
 func (r SamlResponse) NameID() string {
@@ -88,7 +105,7 @@ func (r SamlResponse) NameID() string {
 func (r SamlResponse) Email() string {
 	for _, attr := range r.Response.Assertion.AttributeStatement.Attributes {
 		if attr.Name == "email" {
-			return attr.AttributeValue
+			return attr.AttributeValue.Value
 		}
 	}
 	return ""
@@ -126,10 +143,75 @@ func (r SamlResponse) Audience() string {
 	return r.Response.Assertion.Conditions.AudienceRestriction.Audience
 }
 
+func (r SamlResponse) SessionIndex() string {
+	return r.Response.Assertion.AuthnStatement.SessionIndex
+}
+
 func (r SamlResponse) SessionNotOnOrAfter() (time.Time, error) {
 	return time.Parse(time.RFC3339, r.Response.Assertion.AuthnStatement.SessionNotOnOrAfter)
 }
 
+func (r SamlResponse) ResponseSignature() Signature {
+	return r.Response.Signature
+}
+
 func (r SamlResponse) AssertionSignature() Signature {
 	return r.Response.Assertion.Signature
+}
+
+func (r SamlResponse) Validate(md *model.Metadata) error {
+	if r.Destination() != md.ACSURL() {
+		return errors.New("destination is invalid")
+	}
+
+	if r.Issuer() != md.EntityID {
+		return errors.New("issuer is invalid")
+	}
+
+	if r.StatusCode() != StatusSeccess {
+		return errors.New("status is not success")
+	}
+
+	if r.Recipient() != md.ACSURL() {
+		return errors.New("recipient is invalid")
+	}
+
+	cnb, err := r.ConditionNotBefore()
+	if err != nil {
+		return fmt.Errorf("condition NotBefore: %v, now: %v", err, time.Now().Format(time.RFC3339))
+	}
+	cnooa, err := r.ConditionNotOnOrAfter()
+	if err != nil {
+		return fmt.Errorf("parse error: condition NotOnOrAfter: %v, now: %v", err, time.Now().Format(time.RFC3339))
+	}
+	snooa, err := r.SubjectNotOnOrAfter()
+	if err != nil {
+		return fmt.Errorf("parse error: subject NotOnOrAfter: %v, now: %v", err, time.Now().Format(time.RFC3339))
+	}
+	_, err = r.SessionNotOnOrAfter()
+	if err != nil {
+		return fmt.Errorf("parse error: session NotOnOrAfter: %v, now: %v", err, time.Now().Format(time.RFC3339))
+	}
+	now := time.Now()
+
+	if now.Before(cnb) {
+		return fmt.Errorf("condition NotBefore: %v, now: %v", cnb, time.Now().Format(time.RFC3339))
+	}
+	if !now.Before(cnooa) {
+		return fmt.Errorf("condition NotOnOrAfter: %v, now: %v", cnb, time.Now().Format(time.RFC3339))
+	}
+	if !now.Before(snooa) {
+		return fmt.Errorf("subject NotOnOrAfter: %v, now: %v", cnb, time.Now().Format(time.RFC3339))
+	}
+	return nil
+}
+
+func getSAMLResponse(c echo.Context) (SamlResponse, error) {
+	encRes := c.FormValue("SAMLResponse")
+	decRes, _ := base64.StdEncoding.DecodeString(encRes)
+	res := SamlResponse{}
+	if err := xml.Unmarshal(decRes, &res.Response); err != nil {
+		return SamlResponse{}, err
+	}
+	return res, nil
 }

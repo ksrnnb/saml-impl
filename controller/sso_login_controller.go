@@ -1,13 +1,8 @@
 package controller
 
 import (
-	"encoding/base64"
-	"encoding/xml"
-	"errors"
-	"fmt"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/ksrnnb/saml/model"
 	"github.com/ksrnnb/saml/session"
@@ -42,7 +37,15 @@ func HandleSamlResponse(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	fmt.Printf("%+v\n", res.AssertionSignature())
+	rsig := res.ResponseSignature()
+	if !rsig.IsZero() {
+		// TODO: validate assertion signature
+	}
+
+	asig := res.AssertionSignature()
+	if !asig.IsZero() {
+		// TODO: validate assertion signature
+	}
 
 	if err := res.Validate(md); err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
@@ -65,9 +68,9 @@ func HandleSamlResponse(c echo.Context) error {
 		session.Set(c, "error", "予期しないエラーが発生しました")
 		return c.Redirect(http.StatusFound, "/login")
 	}
-	// TODO: set session limit
-	// TODO: use session index??
+	// TODO: set session time limit
 	session.Set(c, "userId", u.ID)
+	session.Set(c, "sessionIndex", res.SessionIndex())
 	session.Set(c, "success", "SAML 認証に成功しました")
 
 	redirect := "/"
@@ -76,61 +79,4 @@ func HandleSamlResponse(c echo.Context) error {
 		redirect = rs
 	}
 	return c.Redirect(http.StatusFound, redirect)
-}
-
-func (r SamlResponse) Validate(md *model.Metadata) error {
-	if r.Destination() != md.ACSURL() {
-		return errors.New("destination is invalid")
-	}
-
-	if r.Issuer() != md.EntityID {
-		return errors.New("issuer is invalid")
-	}
-
-	if r.StatusCode() != StatusSeccess {
-		return errors.New("status is not success")
-	}
-
-	if r.Recipient() != md.ACSURL() {
-		return errors.New("recipient is invalid")
-	}
-
-	cnb, err := r.ConditionNotBefore()
-	if err != nil {
-		return fmt.Errorf("condition NotBefore: %v, now: %v", err, time.Now().Format(time.RFC3339))
-	}
-	cnooa, err := r.ConditionNotOnOrAfter()
-	if err != nil {
-		return fmt.Errorf("parse error: condition NotOnOrAfter: %v, now: %v", err, time.Now().Format(time.RFC3339))
-	}
-	snooa, err := r.SubjectNotOnOrAfter()
-	if err != nil {
-		return fmt.Errorf("parse error: subject NotOnOrAfter: %v, now: %v", err, time.Now().Format(time.RFC3339))
-	}
-	_, err = r.SessionNotOnOrAfter()
-	if err != nil {
-		return fmt.Errorf("parse error: session NotOnOrAfter: %v, now: %v", err, time.Now().Format(time.RFC3339))
-	}
-	now := time.Now()
-
-	if now.Before(cnb) {
-		return fmt.Errorf("condition NotBefore: %v, now: %v", cnb, time.Now().Format(time.RFC3339))
-	}
-	if !now.Before(cnooa) {
-		return fmt.Errorf("condition NotOnOrAfter: %v, now: %v", cnb, time.Now().Format(time.RFC3339))
-	}
-	if !now.Before(snooa) {
-		return fmt.Errorf("subject NotOnOrAfter: %v, now: %v", cnb, time.Now().Format(time.RFC3339))
-	}
-	return nil
-}
-
-func getSAMLResponse(c echo.Context) (SamlResponse, error) {
-	encRes := c.FormValue("SAMLResponse")
-	decRes, _ := base64.StdEncoding.DecodeString(encRes)
-	res := SamlResponse{}
-	if err := xml.Unmarshal(decRes, &res.Response); err != nil {
-		return SamlResponse{}, err
-	}
-	return res, nil
 }

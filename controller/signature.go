@@ -12,3 +12,7 @@ type SignedInfo struct {
 type Reference struct {
 	DigestValue string
 }
+
+func (s Signature) IsZero() bool {
+	return s == Signature{}
+}
