@@ -12,6 +12,11 @@ const (
 	StatusSeccess = "urn:oasis:names:tc:SAML:2.0:status:Success"
 )
 
+const (
+	unexpectedMessage = "予期しないメッセージが送信されました"
+	wrongIdentity     = "ユーザーIDまたはパスワードのいずれかが間違っています"
+)
+
 func ShowLogin(c echo.Context) error {
 	uid, err := notAuthenticate(c)
 	if err != nil || uid != "" {
@@ -36,22 +41,24 @@ func Login(c echo.Context) error {
 	u := model.FindUser(uid)
 
 	if u == nil {
-		session.Set(c, "error", "ユーザーIDまたはパスワードのいずれかが間違っています")
-		return c.Redirect(http.StatusFound, "/login")
+		return errorRedirect(c, wrongIdentity)
 	}
 	if err := u.ValidatePassword(pwd); err != nil {
-		session.Set(c, "error", "ユーザーIDまたはパスワードのいずれかが間違っています")
-		return c.Redirect(http.StatusFound, "/login")
+		return errorRedirect(c, wrongIdentity)
 	}
+
 	// start to login
 	if err := session.Clear(c); err != nil {
-		session.Set(c, "error", "予期しないエラーが発生しました")
-		return c.Redirect(http.StatusFound, "/login")
+		return errorRedirect(c, unexpectedMessage)
 	}
 	if err := session.Set(c, "userId", uid); err != nil {
-		session.Set(c, "error", "予期しないエラーが発生しました")
-		return c.Redirect(http.StatusFound, "/login")
+		return errorRedirect(c, unexpectedMessage)
 	}
 
 	return c.Redirect(http.StatusFound, "/")
+}
+
+func errorRedirect(c echo.Context, msg string) error {
+	session.Set(c, "error", msg)
+	return c.Redirect(http.StatusFound, "/login")
 }

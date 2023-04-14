@@ -9,7 +9,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func HandleLogoutResponse(c echo.Context) error {
+func HandleLogoutRequest(c echo.Context) error {
 	encRes := c.FormValue("SAMLRequest")
 	decRes, _ := base64.StdEncoding.DecodeString(encRes)
 

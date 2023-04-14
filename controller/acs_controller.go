@@ -9,20 +9,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-func ShowSSOLogin(c echo.Context) error {
-	u, err := authenticate(c)
-	if err != nil || u == nil {
-		return err
-	}
-	md := model.FindMetadtaByCompanyID(u.CompanyID)
-	if md == nil {
-		return c.Render(http.StatusOK, "ssologin.html", md)
-	}
-	return c.Render(http.StatusOK, "ssologin.html", md)
-}
-
 // HTTP POST Binding
-func HandleSamlResponse(c echo.Context) error {
+func ConsumeAssertion(c echo.Context) error {
 	cid, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.String(http.StatusBadRequest, err.Error())
