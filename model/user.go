@@ -2,63 +2,33 @@ package model
 
 import "errors"
 
-var userStore []*User
-
-const defaultCompanyID = "38azqp4z"
+const defaultUserID = "demo"
+const defaultPassword = "&!6Z9@K3f"
+const defaultEmail = "demo@test.com"
 
 // User belongs to only one Company
 type User struct {
-	ID           string
+	ID           string `gorm:"primaryKey"`
 	Password     string
-	Company      *Company
+	CompanyID    string
 	Email        string
 	PersistentID string
 }
 
-func init() {
-	c := &Company{ID: defaultCompanyID}
-	demoUser := &User{
-		ID:       "demo",
-		Password: "&!6Z9@K3f",
-		Company:  c,
-		Email:    "demo@test.com",
+func FindUser(id string) (*User, error) {
+	u := &User{}
+	if err := db.Limit(1).Find(u, "id=?", id).Error; err != nil {
+		return nil, err
 	}
-	userStore = append(userStore, demoUser)
+	return u, nil
 }
 
-func FindUser(id string) *User {
-	for _, u := range userStore {
-		if u.ID == id {
-			return u
-		}
+func FindUserByEmail(email string) (*User, error) {
+	u := &User{}
+	if err := db.Limit(1).Find(u, "email=?", email).Error; err != nil {
+		return nil, err
 	}
-	return nil
-}
-
-func FindUserByEmail(email string) *User {
-	for _, u := range userStore {
-		if u.Email == email {
-			return u
-		}
-	}
-	return nil
-}
-
-func FindUserByPersistentID(pid string) *User {
-	for _, u := range userStore {
-		if u.PersistentID == pid {
-			return u
-		}
-	}
-	return nil
-}
-
-func (u *User) Save() {
-	for i, user := range userStore {
-		if user.ID == u.ID {
-			userStore[i] = u
-		}
-	}
+	return u, nil
 }
 
 func (u *User) ValidatePassword(pwd string) error {

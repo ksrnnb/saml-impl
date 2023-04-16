@@ -13,7 +13,10 @@ func authenticate(c echo.Context) (*model.User, error) {
 	if err != nil {
 		return nil, c.String(http.StatusInternalServerError, err.Error())
 	}
-	u := model.FindUser(uid)
+	u, err := model.FindUser(uid)
+	if err != nil {
+		return nil, c.String(http.StatusInternalServerError, err.Error())
+	}
 	if u == nil {
 		return nil, c.Redirect(http.StatusFound, "/login")
 	}

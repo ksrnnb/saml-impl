@@ -2,14 +2,16 @@ package model
 
 // Metadata is metadata of IdP
 type IdPMetadata struct {
-	ID          int
+	ID          int `gorm:"primaryKey"`
 	CompanyID   string
-	EntityID    string // idp entityID
+	EntityID    string
 	Certificate string
 	SSOURL      string
 }
 
-var IdPMetadataRepo []*IdPMetadata
+func (m IdPMetadata) TableName() string {
+	return "idp_metadatas"
+}
 
 func NewIdPMetadata(cid string, eid string, cert string, ssourl string) *IdPMetadata {
 	return &IdPMetadata{
@@ -20,28 +22,25 @@ func NewIdPMetadata(cid string, eid string, cert string, ssourl string) *IdPMeta
 	}
 }
 
-func FindMetadtaByCompanyID(cid string) *IdPMetadata {
-	for _, m := range IdPMetadataRepo {
-		if m.CompanyID == cid {
-			return m
-		}
+func FindMetadtaByCompanyID(cid string) (*IdPMetadata, error) {
+	m := &IdPMetadata{}
+	if err := db.Limit(1).Find(m).Error; err != nil {
+		return nil, err
 	}
-	return nil
+	return m, nil
 }
 
-func (m *IdPMetadata) Save() {
-	if m.ID == 0 {
-		m.ID = len(IdPMetadataRepo) + 1
-		IdPMetadataRepo = append(IdPMetadataRepo, m)
-		return
+func (m *IdPMetadata) Save() error {
+	mm, err := FindMetadtaByCompanyID(m.CompanyID)
+	if err != nil {
+		return err
+	}
+	if mm != nil {
+		m.ID = mm.ID
+		return db.Save(m).Error
 	}
 
-	for i, mInRepo := range IdPMetadataRepo {
-		if m.ID == mInRepo.ID {
-			IdPMetadataRepo[i] = m
-			return
-		}
-	}
+	return db.Create(m).Error
 }
 
 func (m *IdPMetadata) Valid() bool {

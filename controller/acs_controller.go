@@ -9,7 +9,10 @@ import (
 
 // HTTP POST Binding
 func ConsumeAssertion(c echo.Context) error {
-	md := model.FindMetadtaByCompanyID(c.Param("id"))
+	md, err := model.FindMetadtaByCompanyID(c.Param("id"))
+	if err != nil {
+		return err
+	}
 	if md == nil {
 		return c.String(http.StatusNotFound, "metadata is not found")
 	}

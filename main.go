@@ -1,9 +1,7 @@
 package main
 
 import (
-	"encoding/xml"
 	"io"
-	"os"
 	"text/template"
 
 	"github.com/ksrnnb/saml-impl/route"
@@ -19,17 +17,7 @@ func (t *Template) Render(w io.Writer, name string, data interface{}, c echo.Con
 	return t.templates.ExecuteTemplate(w, name, data)
 }
 
-const httpPostBinding = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST"
-
 func main() {
-	f, err := os.ReadFile("./metadata.xml")
-	if err != nil {
-		panic(err)
-	}
-
-	md := Metadata{}
-	xml.Unmarshal(f, &md.EntityDescriptor)
-
 	t := &Template{
 		templates: template.Must(template.ParseGlob("view/*.html")),
 	}

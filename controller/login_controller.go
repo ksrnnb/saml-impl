@@ -13,6 +13,7 @@ const (
 )
 
 const (
+	unexpectedError   = "予期しないエラーが発生しました"
 	unexpectedMessage = "予期しないメッセージが送信されました"
 	wrongIdentity     = "ユーザーIDまたはパスワードのいずれかが間違っています"
 )
@@ -38,8 +39,10 @@ func Login(c echo.Context) error {
 
 	uid = c.FormValue("userId")
 	pwd := c.FormValue("password")
-	u := model.FindUser(uid)
-
+	u, err := model.FindUser(uid)
+	if err != nil {
+		return errorRedirect(c, unexpectedError)
+	}
 	if u == nil {
 		return errorRedirect(c, wrongIdentity)
 	}

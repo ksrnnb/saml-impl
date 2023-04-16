@@ -4,3 +4,4 @@ logout.xml
 .vscode
 data
 __debug_bin
+sqlite.db
