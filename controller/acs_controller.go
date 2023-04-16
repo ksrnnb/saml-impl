@@ -2,7 +2,6 @@ package controller
 
 import (
 	"net/http"
-	"strconv"
 
 	"github.com/ksrnnb/saml-impl/model"
 	"github.com/labstack/echo/v4"
@@ -10,11 +9,7 @@ import (
 
 // HTTP POST Binding
 func ConsumeAssertion(c echo.Context) error {
-	cid, err := strconv.Atoi(c.Param("id"))
-	if err != nil {
-		return c.String(http.StatusBadRequest, err.Error())
-	}
-	md := model.FindMetadtaByCompanyID(cid)
+	md := model.FindMetadtaByCompanyID(c.Param("id"))
 	if md == nil {
 		return c.String(http.StatusNotFound, "metadata is not found")
 	}

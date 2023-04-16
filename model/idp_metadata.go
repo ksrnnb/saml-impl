@@ -3,7 +3,7 @@ package model
 // Metadata is metadata of IdP
 type IdPMetadata struct {
 	ID          int
-	CompanyID   int
+	CompanyID   string
 	EntityID    string // idp entityID
 	Certificate string
 	SSOURL      string
@@ -11,7 +11,7 @@ type IdPMetadata struct {
 
 var IdPMetadataRepo []*IdPMetadata
 
-func NewIdPMetadata(cid int, eid string, cert string, ssourl string) *IdPMetadata {
+func NewIdPMetadata(cid string, eid string, cert string, ssourl string) *IdPMetadata {
 	return &IdPMetadata{
 		CompanyID:   cid,
 		EntityID:    eid,
@@ -20,7 +20,7 @@ func NewIdPMetadata(cid int, eid string, cert string, ssourl string) *IdPMetadat
 	}
 }
 
-func FindMetadtaByCompanyID(cid int) *IdPMetadata {
+func FindMetadtaByCompanyID(cid string) *IdPMetadata {
 	for _, m := range IdPMetadataRepo {
 		if m.CompanyID == cid {
 			return m
@@ -45,5 +45,5 @@ func (m *IdPMetadata) Save() {
 }
 
 func (m *IdPMetadata) Valid() bool {
-	return m.ID != 0 && m.CompanyID != 0 && m.EntityID != "" && m.Certificate != "" && m.SSOURL != ""
+	return m.ID != 0 && m.CompanyID != "" && m.EntityID != "" && m.Certificate != "" && m.SSOURL != ""
 }

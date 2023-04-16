@@ -43,7 +43,7 @@ func Metadata(c echo.Context) error {
 		})
 }
 
-func samlService(cid int) service.SamlService {
+func samlService(cid string) service.SamlService {
 	return service.NewSamlService(cid)
 }
 

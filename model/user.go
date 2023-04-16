@@ -4,13 +4,13 @@ import "errors"
 
 var userStore []*User
 
-const defaultCompanyID = 1
+const defaultCompanyID = "38azqp4z"
 
 // User belongs to only one Company
 type User struct {
 	ID           string
 	Password     string
-	CompanyID    int
+	CompanyID    string
 	Email        string
 	PersistentID string
 }
