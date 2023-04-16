@@ -19,5 +19,5 @@ func RegisterRoutes(e *echo.Echo) {
 
 	// e.GET("/login/saml", controller.StartSPSamlLogin)
 	e.POST("/acs/:company_id", controller.ConsumeAssertion)
-	// e.POST("/slo/:company_id", controller.HandleLogoutRequest)
+	e.POST("/slo/:company_id", controller.SingleLogout)
 }

@@ -6,6 +6,10 @@ const defaultUserID = "demo"
 const defaultPassword = "&!6Z9@K3f"
 const defaultEmail = "demo@test.com"
 
+const adminUserID = "admin"
+const adminPassword = "k4s60#lkf"
+const adminEmail = "admin@test.com"
+
 // User belongs to only one Company
 type User struct {
 	ID           string `gorm:"primaryKey"`
