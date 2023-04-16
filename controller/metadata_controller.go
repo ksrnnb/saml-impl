@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"io/ioutil"
 	"net/http"
 
 	"github.com/ksrnnb/saml-impl/model"
@@ -43,8 +44,19 @@ func Metadata(c echo.Context) error {
 		})
 }
 
-func samlService(cid string) service.SamlService {
-	return service.NewSamlService(cid)
+// IdP からアップロードしたメタデータを Parse する
+// JSON を返す
+func ParseMetadata(c echo.Context) error {
+	body, err := ioutil.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": "cannot read request body"})
+	}
+	s := samlIdPService()
+	m, err := s.Parse(body)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"message": err.Error()})
+	}
+	return c.JSON(http.StatusOK, m)
 }
 
 // IdP から取得したメタデータの登録
@@ -67,4 +79,12 @@ func CreateMetadata(c echo.Context) error {
 		return err
 	}
 	return c.Redirect(http.StatusFound, "/metadata")
+}
+
+func samlService(cid string) service.SamlService {
+	return service.NewSamlService(cid)
+}
+
+func samlIdPService() service.SamlIdPService {
+	return service.NewSamlIdPService()
 }

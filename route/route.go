@@ -10,6 +10,7 @@ func RegisterRoutes(e *echo.Echo) {
 
 	e.GET("/metadata", controller.Metadata)
 	e.POST("/metadata", controller.CreateMetadata)
+	e.POST("/metadata/parse", controller.ParseMetadata)
 
 	e.GET("/login", controller.ShowLogin)
 	e.POST("/login", controller.Login)

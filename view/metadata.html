@@ -90,32 +90,37 @@
 
 <script>
   const fileElem = document.getElementById("fileElem");
+  const createOnLoadXMLFile = (reader) => {
+    return async () => {
+      const res = await fetch("metadata/parse", {
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/samlmetadata+xml'
+        },
+        proxy: "http://localhost:3000",
+        body: reader.result
+      });
+
+      const json = await res.json();
+
+      const eidElem = document.getElementById('entityID');
+      const certElem = document.getElementById('certificate');
+      const ssoElem = document.getElementById('ssourl');
+
+      eidElem.value = json.idpEntityId || '';
+      certElem.value = json.idpCertificate || '';
+      ssoElem.value = json.ssoUrl || '';
+    }
+  };
+
   fileElem.addEventListener("change", (e) => {
     if (e.target.files.length === 0) {
       return;
     }
     const file = e.target.files[0];
     const reader = new FileReader();
-    reader.onload = () => {
-      const parser = new DOMParser();
-      const dom = parser.parseFromString(reader.result, "application/xml");
-      const entityDescriptorElemnt = dom.getElementsByTagName('md:EntityDescriptor')[0];
-      const entityID = entityDescriptorElemnt.getAttribute('entityID');
-      const certificate = dom.getElementsByTagName('ds:X509Certificate')[0].textContent;
-      const SSOURLElements = dom.getElementsByTagName('md:SingleSignOnService');
-      const SSOURLElementforRedirect = Array.prototype.find.call(SSOURLElements, url => {
-        return url.getAttribute('Binding') === 'urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect';
-      });
-      const SSOURL = SSOURLElementforRedirect.getAttribute('Location');
-
-      const eidElem = document.getElementById('entityID');
-      const certElem = document.getElementById('certificate');
-      const ssoElem = document.getElementById('ssourl');
-
-      eidElem.value = entityID;
-      certElem.value = certificate;
-      ssoElem.value = SSOURL;
-    }
+    const onLoadXMLFile = createOnLoadXMLFile(reader);
+    reader.onload = onLoadXMLFile;
     reader.readAsText(file);
   })
 </script>
