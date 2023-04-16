@@ -13,6 +13,9 @@ func authenticate(c echo.Context) (*model.User, error) {
 	if err != nil {
 		return nil, c.String(http.StatusInternalServerError, err.Error())
 	}
+	if uid == "" {
+		return nil, c.Redirect(http.StatusFound, "/login")
+	}
 	u, err := model.FindUser(uid)
 	if err != nil {
 		return nil, c.String(http.StatusInternalServerError, err.Error())
