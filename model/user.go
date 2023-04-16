@@ -10,17 +10,18 @@ const defaultCompanyID = "38azqp4z"
 type User struct {
 	ID           string
 	Password     string
-	CompanyID    string
+	Company      *Company
 	Email        string
 	PersistentID string
 }
 
 func init() {
+	c := &Company{ID: defaultCompanyID}
 	demoUser := &User{
-		ID:        "demo",
-		Password:  "&!6Z9@K3f",
-		CompanyID: defaultCompanyID,
-		Email:     "demo@test.com",
+		ID:       "demo",
+		Password: "&!6Z9@K3f",
+		Company:  c,
+		Email:    "demo@test.com",
 	}
 	userStore = append(userStore, demoUser)
 }

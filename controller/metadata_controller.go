@@ -21,11 +21,11 @@ func Metadata(c echo.Context) error {
 	if err != nil || u == nil {
 		return err
 	}
-	idpMD := model.FindMetadtaByCompanyID(u.CompanyID)
+	idpMD := model.FindMetadtaByCompanyID(u.Company.ID)
 	if idpMD == nil {
-		idpMD = &model.IdPMetadata{CompanyID: u.CompanyID}
+		idpMD = &model.IdPMetadata{CompanyID: u.Company.ID}
 	}
-	s := samlService(u.CompanyID)
+	s := samlService(u.Company.ID)
 	spMD := s.SPMetadata()
 
 	sm, err := session.Get(c, "success")
@@ -56,7 +56,7 @@ func CreateMetadata(c echo.Context) error {
 		return err
 	}
 	m := model.NewIdPMetadata(
-		u.CompanyID,
+		u.Company.ID,
 		c.FormValue("entityID"),
 		c.FormValue("certificate"),
 		c.FormValue("ssourl"),
