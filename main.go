@@ -6,7 +6,7 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/ksrnnb/saml/route"
+	"github.com/ksrnnb/saml-impl/route"
 
 	"github.com/labstack/echo/v4"
 )
@@ -35,7 +35,7 @@ func main() {
 	}
 	e := echo.New()
 	e.Renderer = t
+
 	route.RegisterRoutes(e)
 	e.Logger.Fatal(e.Start(":3000"))
-
 }

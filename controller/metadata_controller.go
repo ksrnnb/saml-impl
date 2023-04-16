@@ -3,13 +3,15 @@ package controller
 import (
 	"net/http"
 
-	"github.com/ksrnnb/saml/model"
-	"github.com/ksrnnb/saml/session"
+	"github.com/ksrnnb/saml-impl/model"
+	"github.com/ksrnnb/saml-impl/service"
+	"github.com/ksrnnb/saml-impl/session"
 	"github.com/labstack/echo/v4"
 )
 
 type MetadataParam struct {
-	Metadata       *model.Metadata
+	IdPMetadata    *model.IdPMetadata
+	SPMetadata     *model.SPMetadata
 	SuccessMessage string
 }
 
@@ -19,10 +21,13 @@ func Metadata(c echo.Context) error {
 	if err != nil || u == nil {
 		return err
 	}
-	m := model.FindMetadtaByCompanyID(u.CompanyID)
-	if m == nil {
-		m = &model.Metadata{CompanyID: u.CompanyID}
+	idpMD := model.FindMetadtaByCompanyID(u.CompanyID)
+	if idpMD == nil {
+		idpMD = &model.IdPMetadata{CompanyID: u.CompanyID}
 	}
+	s := samlService(u.CompanyID)
+	spMD := s.SPMetadata()
+
 	sm, err := session.Get(c, "success")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
@@ -32,9 +37,14 @@ func Metadata(c echo.Context) error {
 		http.StatusOK,
 		"metadata.html",
 		MetadataParam{
-			Metadata:       m,
+			IdPMetadata:    idpMD,
+			SPMetadata:     spMD,
 			SuccessMessage: sm,
 		})
+}
+
+func samlService(cid int) service.SamlService {
+	return service.NewSamlService(cid)
 }
 
 // IdP から取得したメタデータの登録
@@ -45,7 +55,7 @@ func CreateMetadata(c echo.Context) error {
 	if err != nil || u == nil {
 		return err
 	}
-	m := model.NewMetadata(
+	m := model.NewIdPMetadata(
 		u.CompanyID,
 		c.FormValue("entityID"),
 		c.FormValue("certificate"),

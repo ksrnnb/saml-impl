@@ -3,7 +3,7 @@ package controller
 import (
 	"net/http"
 
-	"github.com/ksrnnb/saml/session"
+	"github.com/ksrnnb/saml-impl/session"
 	"github.com/labstack/echo/v4"
 )
 

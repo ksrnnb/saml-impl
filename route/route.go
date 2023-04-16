@@ -1,7 +1,7 @@
 package route
 
 import (
-	"github.com/ksrnnb/saml/controller"
+	"github.com/ksrnnb/saml-impl/controller"
 	"github.com/labstack/echo/v4"
 )
 

@@ -38,16 +38,16 @@
           に登録してください</p>
         <div class="mb-3">
           <label or="spEntityID" class="form-label">SP Entity ID</label>
-          <input type="text" name="spEntityID" class="form-control" id="spEntityID" value="{{ .Metadata.SPEntityID }}"
+          <input type="text" name="spEntityID" class="form-control" id="spEntityID" value="{{ .SPMetadata.EntityID }}"
             readonly>
         </div>
         <div class="mb-3">
           <label for="acsurl" class="form-label">ACS URL</label>
-          <input type="text" name="acsurl" class="form-control" id="acsurl" value="{{ .Metadata.ACSURL }}" readonly>
+          <input type="text" name="acsurl" class="form-control" id="acsurl" value="{{ .SPMetadata.ACSURL }}" readonly>
         </div>
         <div class="mb-3">
           <label for="slourl" class="form-label">SLO URL</label>
-          <input type="text" name="slourl" class="form-control" id="slourl" value="{{ .Metadata.SLOURL }}" readonly>
+          <input type="text" name="slourl" class="form-control" id="slourl" value="{{ .SPMetadata.SLOURL }}" readonly>
         </div>
       </div>
     </div>
@@ -63,17 +63,18 @@
         <form class="mt-5" action="/metadata" method="POST">
           <div class="mb-3">
             <label for="entityID" class="form-label">IdP Entity ID</label>
-            <input type="text" name="entityID" class="form-control" id="entityID" value="{{ .Metadata.EntityID }}"
+            <input type="text" name="entityID" class="form-control" id="entityID" value="{{ .IdPMetadata.EntityID }}"
               required>
           </div>
           <div class="mb-3">
             <label for="certificate" class="form-label">X509Certificate</label>
             <input type="text" name="certificate" class="form-control" id="certificate"
-              value="{{ .Metadata.Certificate }}" required>
+              value="{{ .IdPMetadata.Certificate }}" required>
           </div>
           <div class="mb-3">
             <label for="ssourl" class="form-label">SSO URL</label>
-            <input type="text" name="ssourl" class="form-control" id="ssourl" value="{{ .Metadata.SSOURL }}" required>
+            <input type="text" name="ssourl" class="form-control" id="ssourl" value="{{ .IdPMetadata.SSOURL }}"
+              required>
           </div>
           <button type="submit" class="btn btn-primary">更新する</button>
         </form>

@@ -6,6 +6,7 @@ var userStore []*User
 
 const defaultCompanyID = 1
 
+// User belongs to only one Company
 type User struct {
 	ID           string
 	Password     string
@@ -17,7 +18,7 @@ type User struct {
 func init() {
 	demoUser := &User{
 		ID:        "demo",
-		Password:  "password",
+		Password:  "&!6Z9@K3f",
 		CompanyID: defaultCompanyID,
 		Email:     "demo@test.com",
 	}
