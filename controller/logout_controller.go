@@ -13,6 +13,5 @@ func Logout(c echo.Context) error {
 		return err
 	}
 	session.Clear(c)
-	// TODO: send LogoutRequest to IdP
 	return c.Redirect(http.StatusFound, "/login")
 }
