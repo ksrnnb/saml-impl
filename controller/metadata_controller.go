@@ -26,7 +26,7 @@ func Metadata(c echo.Context) error {
 	if idpMD == nil {
 		idpMD = &model.IdPMetadata{CompanyID: u.CompanyID}
 	}
-	s := samlService(u.CompanyID)
+	s := samlSPService(u.CompanyID)
 	spMD := s.SPMetadata()
 
 	sm, err := session.Get(c, "success")
@@ -81,8 +81,8 @@ func CreateMetadata(c echo.Context) error {
 	return c.Redirect(http.StatusFound, "/metadata")
 }
 
-func samlService(cid string) service.SamlService {
-	return service.NewSamlService(cid)
+func samlSPService(cid string) service.SamlSPService {
+	return service.NewSamlSPService(cid)
 }
 
 func samlIdPService() service.SamlIdPService {

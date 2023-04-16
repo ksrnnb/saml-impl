@@ -3,13 +3,15 @@ package controller
 import (
 	"net/http"
 
+	"github.com/crewjam/saml/samlsp"
 	"github.com/ksrnnb/saml-impl/model"
+	"github.com/ksrnnb/saml-impl/session"
 	"github.com/labstack/echo/v4"
 )
 
 // HTTP POST Binding
 func ConsumeAssertion(c echo.Context) error {
-	md, err := model.FindMetadtaByCompanyID(c.Param("id"))
+	md, err := model.FindMetadtaByCompanyID(c.Param("company_id"))
 	if err != nil {
 		return err
 	}
@@ -17,51 +19,53 @@ func ConsumeAssertion(c echo.Context) error {
 		return c.String(http.StatusNotFound, "metadata is not found")
 	}
 
-	// res, err := getSAMLResponse(c)
-	// if err != nil {
-	// 	return c.String(http.StatusBadRequest, err.Error())
-	// }
+	ss := samlSPService(md.CompanyID)
+	is := samlIdPService()
+	ied, err := is.BuildIdPEntityDescriptor(md)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	samlsp, _ := samlsp.New(samlsp.Options{
+		EntityID:          ss.SPEntityID().String(),
+		AllowIDPInitiated: true,
+		IDPMetadata:       ied,
+	})
+	samlsp.ServiceProvider.AcsURL = *ss.ACSURL()
+	samlsp.ServiceProvider.SloURL = *ss.SLOURL()
 
-	// rsig := res.ResponseSignature()
-	// if !rsig.IsZero() {
-	// 	// TODO: validate assertion signature
-	// }
+	r := c.Request()
+	r.ParseForm()
 
-	// asig := res.AssertionSignature()
-	// if !asig.IsZero() {
-	// 	// TODO: validate assertion signature
-	// }
+	// TODO: handle SP-initiated
+	possibleRequestIDs := []string{}
+	if samlsp.ServiceProvider.AllowIDPInitiated {
+		possibleRequestIDs = append(possibleRequestIDs, "")
+	}
 
-	// if err := res.Validate(md); err != nil {
-	// 	return c.String(http.StatusBadRequest, err.Error())
-	// }
+	assertion, err := samlsp.ServiceProvider.ParseResponse(r, possibleRequestIDs)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
 
-	// u := model.FindUserByPersistentID(res.NameID())
-	// if u == nil {
-	// 	// IdP と SP の間で persistent id による紐づきがまだの場合は
-	// 	// メールアドレスで検索して紐付けを行う
-	// 	u = model.FindUserByEmail(res.Email())
-	// 	if u == nil {
-	// 		session.Set(c, "error", "IdP のメールアドレスと一致するユーザーがみつかりませんでした")
-	// 		return c.Redirect(http.StatusFound, "/login")
-	// 	}
-	// 	u.PersistentID = res.NameID()
-	// 	u.Save()
-	// }
+	// SAML 認証成功後
+	email := assertion.Subject.NameID.Value
+	u, err := model.FindUserByEmail(email)
+	if err != nil {
+		return c.String(http.StatusInternalServerError, "ユーザーがみつかりませんでした")
+	}
 
-	// if err := session.Clear(c); err != nil {
-	// 	session.Set(c, "error", "予期しないエラーが発生しました")
-	// 	return c.Redirect(http.StatusFound, "/login")
-	// }
-	// // TODO: set session time limit
-	// session.Set(c, "userId", u.ID)
-	// session.Set(c, "sessionIndex", res.SessionIndex())
-	// session.Set(c, "success", "SAML 認証に成功しました")
+	if err := session.Clear(c); err != nil {
+		session.Set(c, "error", "予期しないエラーが発生しました")
+		return c.Redirect(http.StatusFound, "/login")
+	}
+
+	session.Set(c, "userId", u.ID)
+	session.Set(c, "success", "SAML 認証に成功しました")
 
 	redirect := "/"
 	rs := c.FormValue("RelayState")
 	if rs != "" {
-		redirect = rs
+		// TODO: handle RelayState
 	}
 	return c.Redirect(http.StatusFound, redirect)
 }

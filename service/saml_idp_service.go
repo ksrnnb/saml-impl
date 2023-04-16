@@ -5,7 +5,10 @@ import (
 
 	"github.com/crewjam/saml"
 	"github.com/crewjam/saml/samlsp"
+	"github.com/ksrnnb/saml-impl/model"
 )
+
+const nameIDFormat = "urn:oasis:names:tc:SAML:2.0:nameid-format:emailAddress"
 
 type SamlIdPService struct{}
 
@@ -62,5 +65,44 @@ func (s SamlIdPService) Parse(data []byte) (map[string]string, error) {
 		"idpEntityId":    md.EntityID,
 		"ssoUrl":         ssourl,
 		"idpCertificate": cert,
+	}, nil
+}
+
+func (s SamlIdPService) BuildIdPEntityDescriptor(md *model.IdPMetadata) (*saml.EntityDescriptor, error) {
+	idpMD, err := model.FindMetadtaByCompanyID(md.CompanyID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &saml.EntityDescriptor{
+		EntityID: idpMD.EntityID,
+		IDPSSODescriptors: []saml.IDPSSODescriptor{
+			{
+				SSODescriptor: saml.SSODescriptor{
+					RoleDescriptor: saml.RoleDescriptor{
+						ProtocolSupportEnumeration: "urn:oasis:names:tc:SAML:2.0:protocol",
+						KeyDescriptors: []saml.KeyDescriptor{
+							{
+								Use: "signing",
+								KeyInfo: saml.KeyInfo{
+									X509Data: saml.X509Data{
+										X509Certificates: []saml.X509Certificate{
+											{Data: idpMD.Certificate},
+										},
+									},
+								},
+							},
+						},
+					},
+					NameIDFormats: []saml.NameIDFormat{saml.NameIDFormat(saml.EmailAddressNameIDFormat)},
+				},
+				SingleSignOnServices: []saml.Endpoint{
+					{
+						Binding:  saml.HTTPPostBinding,
+						Location: idpMD.SSOURL,
+					},
+				},
+			},
+		},
 	}, nil
 }
