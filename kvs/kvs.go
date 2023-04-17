@@ -10,6 +10,10 @@ func Get(key string) any {
 	return store[key]
 }
 
+func Delete(key string) {
+	delete(store, key)
+}
+
 func Exists(key string) bool {
 	_, ok := store[key]
 	return ok

@@ -25,6 +25,14 @@ func Set(c echo.Context, key string, value string) error {
 			if err != nil {
 				return err
 			}
+			c.SetCookie(
+				&http.Cookie{
+					Name:     sessionKey,
+					Value:    sid,
+					HttpOnly: true,
+					Path:     "/",
+				},
+			)
 		} else {
 			return err
 		}
@@ -33,12 +41,6 @@ func Set(c echo.Context, key string, value string) error {
 	ss[key] = value
 	kvs.Set(sid, ss)
 
-	c.SetCookie(
-		&http.Cookie{
-			Name:  sessionKey,
-			Value: sid,
-		},
-	)
 	return nil
 }
 
@@ -56,7 +58,7 @@ func Get(c echo.Context, key string) (string, error) {
 	// TODO: key で判断するのではなく flash メソッドとかをつくる
 	if key == "success" || key == "error" {
 		v := ss[key]
-		delete(ss, key)
+		kvs.Delete(key)
 		return v, nil
 	}
 	return ss[key], nil
