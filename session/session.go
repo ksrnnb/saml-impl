@@ -1,21 +1,18 @@
 package session
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"errors"
 	"net/http"
 
+	"github.com/ksrnnb/saml-impl/kvs"
 	"github.com/labstack/echo/v4"
 )
 
-var sessionStore map[string]map[string]string
-
 const sessionKey = "session_id"
 
-func init() {
-	if sessionStore == nil {
-		sessionStore = map[string]map[string]string{}
-	}
-}
+const sessionLength = 32
 
 func Set(c echo.Context, key string, value string) error {
 	ck, err := c.Cookie(sessionKey)
@@ -24,15 +21,18 @@ func Set(c echo.Context, key string, value string) error {
 		sid = ck.Value
 	} else {
 		if errors.Is(err, http.ErrNoCookie) {
-			sid = sessionID()
+			sid, err = generateSessionID()
+			if err != nil {
+				return err
+			}
 		} else {
 			return err
 		}
 	}
-	if sessionStore[sid] == nil {
-		sessionStore[sid] = map[string]string{}
-	}
-	sessionStore[sid][key] = value
+	ss := getSessionStore(sid)
+	ss[key] = value
+	kvs.Set(sid, ss)
+
 	c.SetCookie(
 		&http.Cookie{
 			Name:  sessionKey,
@@ -50,12 +50,16 @@ func Get(c echo.Context, key string) (string, error) {
 	if sid == "" {
 		return "", nil
 	}
+
+	ss := getSessionStore(sid)
+
+	// TODO: key で判断するのではなく flash メソッドとかをつくる
 	if key == "success" || key == "error" {
-		v := sessionStore[sid][key]
-		delete(sessionStore[sid], key)
+		v := ss[key]
+		delete(ss, key)
 		return v, nil
 	}
-	return sessionStore[sid][key], nil
+	return ss[key], nil
 }
 
 func Clear(c echo.Context) error {
@@ -66,7 +70,7 @@ func Clear(c echo.Context) error {
 	if sid == "" {
 		return nil
 	}
-	sessionStore[sid] = map[string]string{}
+	kvs.Set(sid, nil)
 	return nil
 }
 
@@ -81,7 +85,21 @@ func getSessionID(c echo.Context) (string, error) {
 	return ck.Value, nil
 }
 
-func sessionID() string {
-	// TODO: secure random value
-	return "dummy_session_id"
+func getSessionStore(sid string) map[string]string {
+	sessionStore := kvs.Get(sid)
+	if sessionStore == nil {
+		sessionStore = map[string]string{}
+	}
+	return sessionStore.(map[string]string)
+}
+
+func generateSessionID() (string, error) {
+	randomBytes := make([]byte, sessionLength)
+	_, err := rand.Read(randomBytes)
+	if err != nil {
+		return "", err
+	}
+
+	sessionID := base64.URLEncoding.EncodeToString(randomBytes)
+	return sessionID, nil
 }
