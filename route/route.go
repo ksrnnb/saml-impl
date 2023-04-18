@@ -13,11 +13,12 @@ func RegisterRoutes(e *echo.Echo) {
 	e.POST("/metadata/parse", controller.ParseMetadata)
 
 	e.GET("/login", controller.ShowLogin)
+	e.GET("/login/:company_id", controller.ShowCompanyLogin)
 	e.POST("/login", controller.Login)
+	e.POST("/login/:company_id", controller.SAMLLogin)
 
 	e.POST("/logout", controller.Logout)
 
-	// e.GET("/login/saml", controller.StartSPSamlLogin)
 	e.POST("/acs/:company_id", controller.ConsumeAssertion)
 	e.POST("/slo/:company_id", controller.SingleLogout)
 }

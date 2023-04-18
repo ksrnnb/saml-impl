@@ -3,46 +3,29 @@ package controller
 import (
 	"net/http"
 
-	"github.com/crewjam/saml/samlsp"
 	"github.com/ksrnnb/saml-impl/model"
+	"github.com/ksrnnb/saml-impl/service"
 	"github.com/ksrnnb/saml-impl/session"
 	"github.com/labstack/echo/v4"
 )
 
 // HTTP POST Binding
 func ConsumeAssertion(c echo.Context) error {
-	md, err := model.FindMetadtaByCompanyID(c.Param("company_id"))
-	if err != nil {
-		return err
-	}
-	if md == nil {
-		return c.String(http.StatusNotFound, "metadata is not found")
-	}
-
-	ss := samlSPService(md.CompanyID)
-	is := samlIdPService()
-	ied, err := is.BuildIdPEntityDescriptor(md)
+	ss, err := service.NewSamlService(c.Param("company_id"))
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	samlsp, _ := samlsp.New(samlsp.Options{
-		EntityID:          ss.SPEntityID().String(),
-		AllowIDPInitiated: true,
-		IDPMetadata:       ied,
-	})
-	samlsp.ServiceProvider.AcsURL = *ss.ACSURL()
-	samlsp.ServiceProvider.SloURL = *ss.SLOURL()
 
 	r := c.Request()
 	r.ParseForm()
 
 	// TODO: handle SP-initiated
 	possibleRequestIDs := []string{}
-	if samlsp.ServiceProvider.AllowIDPInitiated {
+	if ss.ServiceProvider.AllowIDPInitiated {
 		possibleRequestIDs = append(possibleRequestIDs, "")
 	}
 
-	assertion, err := samlsp.ServiceProvider.ParseResponse(r, possibleRequestIDs)
+	assertion, err := ss.ServiceProvider.ParseResponse(r, possibleRequestIDs)
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -61,6 +44,7 @@ func ConsumeAssertion(c echo.Context) error {
 
 	session.Set(c, "userId", u.ID)
 	session.Set(c, "success", "SAML 認証に成功しました")
+	session.Activate(u.ID)
 
 	redirect := "/"
 	rs := c.FormValue("RelayState")

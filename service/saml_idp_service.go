@@ -98,7 +98,7 @@ func (s SamlIdPService) BuildIdPEntityDescriptor(md *model.IdPMetadata) (*saml.E
 				},
 				SingleSignOnServices: []saml.Endpoint{
 					{
-						Binding:  saml.HTTPPostBinding,
+						Binding:  saml.HTTPRedirectBinding,
 						Location: idpMD.SSOURL,
 					},
 				},

@@ -34,7 +34,7 @@ func createDemoDataIfNeeded() {
 		panic(res.Error)
 	}
 	if res.RowsAffected == 0 {
-		c = &Company{ID: defaultCompanyID}
+		c = &Company{ID: defaultCompanyID, Name: defaultCompanyName}
 		if err := db.Create(c).Error; err != nil {
 			panic(err)
 		}
