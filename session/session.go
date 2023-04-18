@@ -4,13 +4,16 @@ import (
 	"crypto/rand"
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"net/http"
 
 	"github.com/ksrnnb/saml-impl/kvs"
 	"github.com/labstack/echo/v4"
 )
 
-const sessionKey = "session_id"
+const (
+	sessionKey = "session_id"
+)
 
 const sessionLength = 32
 
@@ -74,6 +77,22 @@ func Clear(c echo.Context) error {
 	}
 	kvs.Set(sid, nil)
 	return nil
+}
+
+func Activate(uid string) {
+	kvs.Delete(invalidateKey(uid))
+}
+
+func Invalidate(uid string) {
+	kvs.Set(invalidateKey(uid), true)
+}
+
+func IsInvalidated(uid string) bool {
+	return kvs.Get(invalidateKey(uid)) == true
+}
+
+func invalidateKey(uid string) string {
+	return fmt.Sprintf("invalidate:userId:%s", uid)
 }
 
 func getSessionID(c echo.Context) (string, error) {

@@ -23,6 +23,9 @@ func authenticate(c echo.Context) (*model.User, error) {
 	if u == nil {
 		return nil, c.Redirect(http.StatusFound, "/login")
 	}
+	if session.IsInvalidated(u.ID) {
+		return nil, c.Redirect(http.StatusFound, "/login")
+	}
 	return u, nil
 }
 
@@ -31,8 +34,11 @@ func notAuthenticate(c echo.Context) (string, error) {
 	if err != nil {
 		return "", c.String(http.StatusInternalServerError, err.Error())
 	}
-	if uid != "" {
-		return uid, c.Redirect(http.StatusFound, "/")
+	if uid == "" {
+		return "", nil
 	}
-	return "", nil
+	if session.IsInvalidated(uid) {
+		return "", nil
+	}
+	return uid, c.Redirect(http.StatusFound, "/")
 }

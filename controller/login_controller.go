@@ -37,6 +37,7 @@ func Login(c echo.Context) error {
 		return err
 	}
 
+	// TODO: SAML 認証が有効なユーザーはパスワード認証できないようにする
 	uid = c.FormValue("userId")
 	pwd := c.FormValue("password")
 	u, err := model.FindUser(uid)
@@ -57,7 +58,7 @@ func Login(c echo.Context) error {
 	if err := session.Set(c, "userId", uid); err != nil {
 		return errorRedirect(c, unexpectedMessage)
 	}
-
+	session.Activate(uid)
 	return c.Redirect(http.StatusFound, "/")
 }
 

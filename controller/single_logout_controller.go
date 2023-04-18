@@ -56,7 +56,6 @@ func SingleLogout(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "ユーザーがみつかりませんでした")
 	}
 
-	fmt.Println(u)
 	resp, err := samlsp.ServiceProvider.MakePostLogoutResponse(samlsp.ServiceProvider.GetSLOBindingLocation(saml.HTTPPostBinding), logoutRequest.ID)
 	if err != nil {
 		return err
@@ -64,7 +63,8 @@ func SingleLogout(c echo.Context) error {
 	if err != nil {
 		fmt.Printf("error: %s", err)
 	}
-	// TODO: 特定のユーザーのセッションを削除する
-	session.Clear(c)
+
+	// ログアウトしたユーザーのセッションを無効にする
+	session.Invalidate(u.ID)
 	return c.HTML(http.StatusOK, string(resp))
 }
