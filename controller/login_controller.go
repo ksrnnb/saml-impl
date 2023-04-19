@@ -89,6 +89,11 @@ func Login(c echo.Context) error {
 
 // SAMLLogin starts to SP-initiated authentication.
 func SAMLLogin(c echo.Context) error {
+	uid, err := notAuthenticate(c)
+	if err != nil || uid != "" {
+		return err
+	}
+
 	ss, err := service.NewSamlService(c.Param("company_id"))
 	if err != nil {
 		return err

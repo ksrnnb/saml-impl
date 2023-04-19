@@ -13,33 +13,37 @@ import (
 func ConsumeAssertion(c echo.Context) error {
 	ss, err := service.NewSamlService(c.Param("company_id"))
 	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		return errorRedirect(c, err.Error())
 	}
 
 	r := c.Request()
 	r.ParseForm()
 
-	// TODO: handle SP-initiated
-	possibleRequestIDs := []string{}
+	possibleRequestIDs := service.ListRequestIDs()
 	if ss.ServiceProvider.AllowIDPInitiated {
 		possibleRequestIDs = append(possibleRequestIDs, "")
 	}
 
 	assertion, err := ss.ServiceProvider.ParseResponse(r, possibleRequestIDs)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
+		return errorRedirect(c, err.Error())
+	}
+
+	// AllowIDPInitiated == true の場合は、 SP-initiated のリクエストが来ても
+	// InResponseTo は検証しないようになっているので自前で検証する
+	if err := ss.ValidateInResponseTo(c.FormValue("SAMLResponse")); err != nil {
+		return errorRedirect(c, err.Error())
 	}
 
 	// SAML 認証成功後
 	email := assertion.Subject.NameID.Value
 	u, err := model.FindUserByEmail(email)
 	if err != nil {
-		return c.String(http.StatusInternalServerError, "ユーザーがみつかりませんでした")
+		return c.String(http.StatusBadRequest, "ユーザーがみつかりませんでした")
 	}
 
 	if err := session.Clear(c); err != nil {
-		session.Set(c, "error", "予期しないエラーが発生しました")
-		return c.Redirect(http.StatusFound, "/login")
+		return c.String(http.StatusBadRequest, err.Error())
 	}
 
 	session.Set(c, "userId", u.ID)

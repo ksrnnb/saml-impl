@@ -1,5 +1,6 @@
 package kvs
 
+// TODO: implement TTL
 var store = map[string]any{}
 
 func Set(key string, value any) {
