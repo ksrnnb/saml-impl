@@ -5,17 +5,13 @@ IdP-initiated で SAML 認証する SP のサンプルアプリケーション�
 このサンプルアプリケーションは未実装の部分があり、不完全なアプリケーションなので注意が必要です。
 
 - CSRF 対策などの不備
-- レスポンスの署名未検証
 - セッション期限未設定
-- Single Logout 未対応
-
-
+- Single Logout 未対応（IdP-initiated の Single Logout を実装しているが、うまく動作していない）
 
 # 使い方
 
 ## 1. 前提条件
-- Go 1.18 以上がインストールされていること
-<!-- docker に変える？ -->
+- Go 1.20 以上がインストールされていること
 
 ## 2. 起動
 下記コマンドを実行すると、docker で keycloak が立ち上がり、ローカルで golang のアプリケーションが立ち上がります。
@@ -27,9 +23,7 @@ make run
 ## 3. IdP に SP のメタデータを登録
 まずは SP ( http://localhost:3000 ) にログインして、必要となるメタデータを確認します。
 
-（今回、SLO URL は表示していますが、使用しません）
-
-![SP メタデータ画面](https://user-images.githubusercontent.com/48155865/202047195-68a14f5a-983c-47f2-bcfa-66cd53e19891.png)
+![SP メタデータ画面](https://user-images.githubusercontent.com/48155865/233210659-15f6b24e-e879-470f-a31a-3922fff65f25.png)
 
 
 次に別タブを開いて、 keycloak ( http://localhost:8080 ) にログインして、必要となるメタデータを登録します。
@@ -47,33 +41,31 @@ Clients > Create client でクライアントを作成します。
 - Client type: SAML
 - Client ID: SP で取得した SP Entity ID
 
-### SSO URL の設定
-作成したクライアントの設定画面から、IDP-Initiated SSO URL name を 1 にします。すると、SSO URL が下に表示されます。ここで Save ボタンを押しておきます。
+### Valid redirect URIs の設定
+作成したクライアントの設定画面から、 Valid redirect URIs に SP の URL を設定します。今回は `http://localhost:3000/*` とします。
+![Valid redirect URIs](https://user-images.githubusercontent.com/48155865/233211085-736267b9-24c4-40bd-bcc6-e4f58a6e6477.png)
 
-![SSO URL](https://user-images.githubusercontent.com/48155865/202047656-e0a080b5-7c4c-43f1-93e5-5bc0db4ba98e.png)
+### SSO URL の設定
+IDP-Initiated SSO URL name を `38azqp4z` にします。すると、SSO URL が下に表示されます。ここで Save ボタンを押しておきます。
+
+![SSO URL](https://user-images.githubusercontent.com/48155865/233210971-0852285a-8dd5-4e37-8f26-67062fd21164.png)
+
+
+### NameID の設定
+NameID format を email に設定、Force POST binding を On にしておきます。
+
+![NameID](https://user-images.githubusercontent.com/48155865/233211385-4e30eac7-6ec0-4e42-a961-420bda21fabb.png)
+
+### クライアントリクエストの署名設定
+Keys タブを選択し、Client signature required を Off にしておきます。この設定により、 SP-initiated のときに署名を不要にします。
 
 ### ACS URL の設定
 Advanced タブを選択し、 Assertion Consumer Service POST Binding URL に、SP のページから取得した ACS URL を設定します。
 
-### Client scope の追加
-左タブの Client scopes を選択し、 Create client scope から新規にスコープを作成します。Name は他の名前でも問題ありません。
-
-- Name: userprofile
-- Type: Default
-- Protocol: SAML
-
-スコープを作成したら、Mappers から Configure a new mapper をクリックし、User Attribute を選択します。
-
-Name, User Attribute, SAML Attribute Name を `email` にして保存します。
-
-![Mapper](https://user-images.githubusercontent.com/48155865/202048744-58a0e984-c055-4eb3-9670-dc641ca3e20b.png)
-
-スコープの設定が完了したら、あとはクライアントにスコープを追加することで、作成した mapper の情報を取得することができます。
-
-スコープを追加するには、左タブから Client を選択して、作成したクライアントを選択します。今度はクライアントの画面内にある Client scopes から、作成した scope を追加します。Assigned type は Default にしておきます。
-
 ### IdP ユーザーのメールアドレスの設定
-左タブの Users を選択し、amdin ユーザーの設定画面に遷移します。そこでメールアドレスを設定します。今回は、SP に[1人のユーザー](https://github.com/ksrnnb/saml/blob/4374e251a8383a6c9626375ca15198eda790a65b/model/user.go#L22)しか保存していないので、メールアドレスは `demo@test.com` で登録しておきます。
+左タブの Users を選択し、ユーザーの設定画面に遷移して、ユーザーを登録します。
+
+今回は、SP に[2人のユーザー](https://github.com/ksrnnb/saml-impl/blob/2f6d33898c1eedd37e0c7d8023c4a8c5563a96ef/model/user.go#L5-L11)が存在するので、それぞれのメールアドレスで登録しておきます。
 
 ## 4. SP に IdP のメタデータを登録
 IdP の設定が完了したので、次は SP にメタデータを登録します。
@@ -93,30 +85,19 @@ IdP の設定が完了したので、次は SP にメタデータを登録しま
 
 SP 側は、トップページから [2. SSO ログイン](http://localhost:3000/ssologin) にアクセスすると、ログアウトボタンが表示されます。
 
-## 6. SAML 認証する
-IdP-initiated の SSO URL にアクセスします。手順通りに行っていれば、SSO URL は http://localhost:8080/realms/master/protocol/saml/clients/1 になっています。
+## 6. IdP-initiated で SAML 認証する
+IdP-initiated の SSO URL にアクセスします。手順通りに行っていれば、SSO URL は http://localhost:8080/realms/master/protocol/saml/clients/38azqp4z になっています。
 
 SAML 認証後、下の画面のように「SAML 認証に成功しました」というメッセージが出れば、SAML 認証が問題なく実行できています。
 
-![SAML認証後の画面](https://user-images.githubusercontent.com/48155865/202050223-b22b30ed-387a-4145-9435-af1e66b9f519.png)
+![SAML認証後の画面](https://user-images.githubusercontent.com/48155865/233212172-290d5b69-a97c-4d0d-a857-d1aecc4478a2.png)
 
-認証処理は、レスポンス中の `AttributeStatement` から email を探し、SP 側に登録済みのユーザーの中に同じ email のアカウントがあった場合は認証するように実装しています。
+## 7. SP-initiated で SAML 認証する
+いったん SP と IdP の両方でログアウトしておきます。
 
-### SAML 認証シーケンス
+SP-initiated の SAML 認証画面は http://localhost:3000/login/38azqp4z になります。各 Company ごとにログイン画面が存在するイメージになります。
 
-```mermaid
-sequenceDiagram
-  participant user as ユーザーエージェント
-  participant sp as SP<br/>localhost:3000
-  participant idp as IdP (keycloak)<br/>localhost:8080
-  user ->> idp: SSO URL にアクセス
-  idp ->> user: SAML Response
-  user ->> sp: SAML Response
-  sp ->> sp: 認証処理
-  sp ->> user: リダイレクト先を送信
-```
-
-## 7. 立ち下げ
+## 8. 立ち下げ
 
 ```bash
 make down
