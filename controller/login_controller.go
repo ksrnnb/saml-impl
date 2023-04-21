@@ -19,6 +19,11 @@ const (
 	wrongIdentity     = "ユーザーIDまたはパスワードのいずれかが間違っています"
 )
 
+type ShowLoginArg struct {
+	Message string
+	Users   []*model.User
+}
+
 func ShowLogin(c echo.Context) error {
 	uid, err := notAuthenticate(c)
 	if err != nil || uid != "" {
@@ -28,7 +33,15 @@ func ShowLogin(c echo.Context) error {
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
-	return c.Render(http.StatusOK, "login.html", errMsg)
+	users, err := model.ListAllUsers()
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	arg := ShowLoginArg{
+		Message: errMsg,
+		Users:   users,
+	}
+	return c.Render(http.StatusOK, "login.html", arg)
 }
 
 type ShowCompanyLoginParams struct {

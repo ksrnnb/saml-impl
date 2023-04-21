@@ -10,6 +10,25 @@ const adminUserID = "admin"
 const adminPassword = "k4s60#lkf"
 const adminEmail = "admin@test.com"
 
+type UserType uint8
+
+const (
+	UserTypeUnknown UserType = iota
+	UserTypeNormal
+	UserTypeAdmin
+)
+
+func (t UserType) String() string {
+	switch t {
+	case UserTypeNormal:
+		return "Normal"
+	case UserTypeAdmin:
+		return "Admin"
+	default:
+		return "Unknown"
+	}
+}
+
 // User belongs to only one Company
 type User struct {
 	ID           string `gorm:"primaryKey"`
@@ -17,6 +36,7 @@ type User struct {
 	CompanyID    string
 	Email        string
 	PersistentID string
+	UserType     UserType
 }
 
 func FindUser(id string) (*User, error) {
@@ -33,6 +53,14 @@ func FindUserByEmail(email string) (*User, error) {
 		return nil, err
 	}
 	return u, nil
+}
+
+func ListAllUsers() ([]*User, error) {
+	var users []*User
+	if err := db.Order("user_type DESC").Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
 }
 
 func (u *User) ValidatePassword(pwd string) error {

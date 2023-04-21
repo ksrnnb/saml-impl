@@ -25,23 +25,16 @@
         ログイン
       </div>
       <div class="card-body">
-        {{ if . }}
+        {{ if .Message }}
         <div class="alert alert-danger d-flex align-items-center" role="alert">
           <svg class="bi flex-shrink-0 me-2" width="24" height="24">
             <use xlink:href="#exclamation-triangle-fill" />
           </svg>
           <div>
-            {{ . }}
+            {{ .Message }}
           </div>
         </div>
         {{ end }}
-        <div>
-          <p class="mb-0">デモユーザー情報</p>
-          <ul>
-            <li>ID: demo</li>
-            <li>Password: &!6Z9@K3f</li>
-          </ul>
-        </div>
         <form action="/login" method="POST">
           <div class="mb-3">
             <label for="userId" class="form-label">ユーザーID</label>
@@ -53,6 +46,32 @@
           </div>
           <button type="submit" class="btn btn-primary">ログインする</button>
         </form>
+      </div>
+    </div>
+
+    <div class="card mt-5" style="width: 30rem;">
+      <div class="card-header">
+        ユーザー一覧
+      </div>
+      <div class="card-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Password</th>
+              <th>UserType</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ range .Users }}
+            <tr>
+              <td>{{ .ID }}</td>
+              <td>{{ .Password }}</td>
+              <td>{{ .UserType }}</td>
+            </tr>
+            {{ end }}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

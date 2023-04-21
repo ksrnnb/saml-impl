@@ -51,6 +51,7 @@ func createDemoDataIfNeeded() {
 			Password:  defaultPassword,
 			CompanyID: c.ID,
 			Email:     defaultEmail,
+			UserType:  UserTypeNormal,
 		}
 		if err := db.Create(&u).Error; err != nil {
 			panic(err)
@@ -68,6 +69,7 @@ func createDemoDataIfNeeded() {
 			Password:  adminPassword,
 			CompanyID: c.ID,
 			Email:     adminEmail,
+			UserType:  UserTypeAdmin,
 		}
 		if err := db.Create(&u).Error; err != nil {
 			panic(err)
