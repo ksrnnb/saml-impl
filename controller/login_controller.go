@@ -4,7 +4,6 @@ import (
 	"net/http"
 
 	"github.com/ksrnnb/saml-impl/model"
-	"github.com/ksrnnb/saml-impl/service"
 	"github.com/ksrnnb/saml-impl/session"
 	"github.com/labstack/echo/v4"
 )
@@ -45,30 +44,6 @@ func ShowLogin(c echo.Context) error {
 	return c.Render(http.StatusOK, "login.html", arg)
 }
 
-type ShowCompanyLoginParams struct {
-	ErrorMessage string
-	Company      *model.Company
-}
-
-func ShowCompanyLogin(c echo.Context) error {
-	uid, err := notAuthenticate(c)
-	if err != nil || uid != "" {
-		return err
-	}
-	errMsg, err := session.Get(c, "error")
-	if err != nil {
-		return c.String(http.StatusInternalServerError, err.Error())
-	}
-	company, err := model.FindCompany(c.Param("company_id"))
-	if err != nil {
-		return err
-	}
-	if company.IsZero() {
-		return c.Redirect(http.StatusFound, "/")
-	}
-	return c.Render(http.StatusOK, "company_login.html", ShowCompanyLoginParams{ErrorMessage: errMsg, Company: company})
-}
-
 func Login(c echo.Context) error {
 	// NOTE: need to protect from csrf
 	uid, err := notAuthenticate(c)
@@ -101,25 +76,6 @@ func Login(c echo.Context) error {
 	}
 	session.Activate(uid)
 	return c.Redirect(http.StatusFound, "/")
-}
-
-// SAMLLogin starts to SP-initiated authentication.
-func SAMLLogin(c echo.Context) error {
-	uid, err := notAuthenticate(c)
-	if err != nil || uid != "" {
-		return err
-	}
-
-	ss, err := service.NewSamlService(c.Param("company_id"))
-	if err != nil {
-		return err
-	}
-	u, err := ss.MakeAuthnRequestURL("")
-	if err != nil {
-		return err
-	}
-
-	return c.Redirect(http.StatusFound, u.String())
 }
 
 func errorRedirect(c echo.Context, msg string) error {

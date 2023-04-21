@@ -19,26 +19,53 @@
 
 <body>
   <div class="container mt-5">
-    <h1>{{ .Company.Name }} ログインページ</h1>
+    <h1>SAML SSO ログイン</h1>
     <div class="card mt-5" style="width: 30rem;">
       <div class="card-header">
-        ログイン
+        SAML SSO ログイン
       </div>
       <div class="card-body">
-        {{ if .ErrorMessage }}
+        {{ if .Message }}
         <div class="alert alert-danger d-flex align-items-center" role="alert">
           <svg class="bi flex-shrink-0 me-2" width="24" height="24">
             <use xlink:href="#exclamation-triangle-fill" />
           </svg>
           <div>
-            {{ .ErrorMessage }}
+            {{ .Message }}
           </div>
         </div>
         {{ end }}
-
-        <form action="/login/{{ .Company.ID }}" method="POST">
-          <button type="submit" class="btn btn-primary">SAML 認証する</button>
+        <form action="/login/saml" method="POST">
+          <div class="mb-3">
+            <label for="company_id" class="form-label">会社ID</label>
+            <input type="text" name="company_id" class="form-control" id="company_id" value="">
+          </div>
+          <button type="submit" class="btn btn-primary">SAML SSO でログインする</button>
         </form>
+      </div>
+    </div>
+
+    <div class="card mt-5" style="width: 30rem;">
+      <div class="card-header">
+        会社一覧
+      </div>
+      <div class="card-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ range .Companies }}
+            <tr>
+              <td>{{ .ID }}</td>
+              <td>{{ .Name }}</td>
+            </tr>
+            {{ end }}
+          </tbody>
+        </table>
       </div>
     </div>
   </div>

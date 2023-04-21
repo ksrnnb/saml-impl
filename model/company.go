@@ -17,6 +17,14 @@ func FindCompany(cid string) (*Company, error) {
 	return c, nil
 }
 
+func ListAllCompanies() ([]*Company, error) {
+	var companies []*Company
+	if err := db.Find(&companies).Error; err != nil {
+		return nil, err
+	}
+	return companies, nil
+}
+
 func (c *Company) IsZero() bool {
 	return c.ID == "" && c.Name == ""
 }
