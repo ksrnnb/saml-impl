@@ -69,3 +69,7 @@ func (u *User) ValidatePassword(pwd string) error {
 	}
 	return nil
 }
+
+func (u *User) IsAdmin() bool {
+	return u.UserType == UserTypeAdmin
+}

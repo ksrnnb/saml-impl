@@ -14,9 +14,10 @@ const (
 )
 
 const (
-	unexpectedError   = "予期しないエラーが発生しました"
-	unexpectedMessage = "予期しないメッセージが送信されました"
-	wrongIdentity     = "ユーザーIDまたはパスワードのいずれかが間違っています"
+	unexpectedError     = "予期しないエラーが発生しました"
+	unexpectedMessage   = "予期しないメッセージが送信されました"
+	wrongIdentity       = "ユーザーIDまたはパスワードのいずれかが間違っています"
+	cannotPasswordLogin = "SAML 認証が有効なユーザーはパスワードでログインできません"
 )
 
 type ShowLoginArg struct {
@@ -75,7 +76,6 @@ func Login(c echo.Context) error {
 		return err
 	}
 
-	// TODO: SAML 認証が有効なユーザーはパスワード認証できないようにする
 	uid = c.FormValue("userId")
 	pwd := c.FormValue("password")
 	u, err := model.FindUser(uid)
@@ -84,6 +84,9 @@ func Login(c echo.Context) error {
 	}
 	if u == nil {
 		return errorRedirect(c, wrongIdentity)
+	}
+	if !u.IsAdmin() {
+		return errorRedirect(c, cannotPasswordLogin)
 	}
 	if err := u.ValidatePassword(pwd); err != nil {
 		return errorRedirect(c, wrongIdentity)
