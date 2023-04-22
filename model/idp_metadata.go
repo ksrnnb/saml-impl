@@ -1,5 +1,11 @@
 package model
 
+import (
+	"errors"
+
+	"gorm.io/gorm"
+)
+
 // Metadata is metadata of IdP
 type IdPMetadata struct {
 	ID          int `gorm:"primaryKey"`
@@ -23,11 +29,16 @@ func NewIdPMetadata(cid string, eid string, cert string, ssourl string) *IdPMeta
 }
 
 func FindMetadtaByCompanyID(cid string) (*IdPMetadata, error) {
-	m := &IdPMetadata{}
-	if err := db.Limit(1).Find(m).Error; err != nil {
+	var m IdPMetadata
+	err := db.First(&m).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
 		return nil, err
 	}
-	return m, nil
+	return &m, nil
 }
 
 func (m *IdPMetadata) Save() error {

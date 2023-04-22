@@ -1,5 +1,11 @@
 package model
 
+import (
+	"errors"
+
+	"gorm.io/gorm"
+)
+
 const defaultCompanyID = "38azqp4z"
 const defaultCompanyName = "サンプル会社"
 
@@ -9,12 +15,15 @@ type Company struct {
 }
 
 func FindCompany(cid string) (*Company, error) {
-	c := &Company{}
-	res := db.Limit(1).Find(c, "id=?", cid)
-	if err := res.Error; err != nil {
+	var c Company
+	err := db.First(&c, "id=?", cid).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
 		return nil, err
 	}
-	return c, nil
+	return &c, nil
 }
 
 func ListAllCompanies() ([]*Company, error) {

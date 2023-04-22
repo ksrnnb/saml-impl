@@ -1,6 +1,10 @@
 package model
 
-import "errors"
+import (
+	"errors"
+
+	"gorm.io/gorm"
+)
 
 const defaultUserID = "demo"
 const defaultPassword = "&!6Z9@K3f"
@@ -40,19 +44,29 @@ type User struct {
 }
 
 func FindUser(id string) (*User, error) {
-	u := &User{}
-	if err := db.Limit(1).Find(u, "id=?", id).Error; err != nil {
+	var u User
+	err := db.First(&u, "id=?", id).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
 		return nil, err
 	}
-	return u, nil
+	return &u, nil
 }
 
 func FindUserByEmail(email string) (*User, error) {
-	u := &User{}
-	if err := db.Limit(1).Find(u, "email=?", email).Error; err != nil {
+	var u User
+	err := db.First(&u, "email=?", email).Error
+
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	if err != nil {
 		return nil, err
 	}
-	return u, nil
+	return &u, nil
 }
 
 func ListAllUsers() ([]*User, error) {
