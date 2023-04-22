@@ -55,30 +55,25 @@ func Login(c echo.Context) error {
 	pwd := c.FormValue("password")
 	u, err := model.FindUser(uid)
 	if err != nil {
-		return errorRedirect(c, unexpectedError)
+		return errorRedirectToLogin(c, unexpectedError)
 	}
 	if u == nil {
-		return errorRedirect(c, wrongIdentity)
+		return errorRedirectToLogin(c, wrongIdentity)
 	}
 	if !u.IsAdmin() {
-		return errorRedirect(c, cannotPasswordLogin)
+		return errorRedirectToLogin(c, cannotPasswordLogin)
 	}
 	if err := u.ValidatePassword(pwd); err != nil {
-		return errorRedirect(c, wrongIdentity)
+		return errorRedirectToLogin(c, wrongIdentity)
 	}
 
 	// start to login
 	if err := session.Clear(c); err != nil {
-		return errorRedirect(c, unexpectedMessage)
+		return errorRedirectToLogin(c, unexpectedMessage)
 	}
 	if err := session.Set(c, "userId", uid); err != nil {
-		return errorRedirect(c, unexpectedMessage)
+		return errorRedirectToLogin(c, unexpectedMessage)
 	}
 	session.Activate(uid)
 	return c.Redirect(http.StatusFound, "/")
-}
-
-func errorRedirect(c echo.Context, msg string) error {
-	session.Set(c, "error", msg)
-	return c.Redirect(http.StatusFound, "/login")
 }

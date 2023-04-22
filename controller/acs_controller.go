@@ -13,7 +13,7 @@ import (
 func ConsumeAssertion(c echo.Context) error {
 	ss, err := service.NewSamlService(c.Param("company_id"))
 	if err != nil {
-		return errorRedirect(c, err.Error())
+		return errorRedirectToLogin(c, err.Error())
 	}
 
 	r := c.Request()
@@ -26,13 +26,13 @@ func ConsumeAssertion(c echo.Context) error {
 
 	assertion, err := ss.ServiceProvider.ParseResponse(r, possibleRequestIDs)
 	if err != nil {
-		return errorRedirect(c, err.Error())
+		return errorRedirectToLogin(c, err.Error())
 	}
 
 	// AllowIDPInitiated == true の場合は、 SP-initiated のリクエストが来ても
 	// InResponseTo は検証しないようになっているので自前で検証する
 	if err := ss.ValidateInResponseTo(c.FormValue("SAMLResponse")); err != nil {
-		return errorRedirect(c, err.Error())
+		return errorRedirectToLogin(c, err.Error())
 	}
 
 	// SAML 認証成功後

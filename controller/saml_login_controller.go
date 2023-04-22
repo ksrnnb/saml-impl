@@ -41,7 +41,12 @@ func SAMLLogin(c echo.Context) error {
 		return err
 	}
 
-	ss, err := service.NewSamlService(c.Param("company_id"))
+	company, err := model.FindCompany(c.FormValue("company_id"))
+	if err != nil || company == nil {
+		return errorRedirectToSAMLLogin(c, err.Error())
+	}
+
+	ss, err := service.NewSamlService(company.ID)
 	if err != nil {
 		return err
 	}
