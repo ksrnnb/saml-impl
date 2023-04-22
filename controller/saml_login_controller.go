@@ -9,6 +9,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const NotFoundCompany = "会社がみつかりませんでした。会社 ID を確認してください。"
+
 type ShowSAMLLoginArg struct {
 	Message   string
 	Companies []*model.Company
@@ -42,8 +44,11 @@ func SAMLLogin(c echo.Context) error {
 	}
 
 	company, err := model.FindCompany(c.FormValue("company_id"))
-	if err != nil || company == nil {
+	if err != nil {
 		return errorRedirectToSAMLLogin(c, err.Error())
+	}
+	if company == nil {
+		return errorRedirectToSAMLLogin(c, NotFoundCompany)
 	}
 
 	ss, err := service.NewSamlService(company.ID)
