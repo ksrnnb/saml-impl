@@ -35,12 +35,11 @@ func (t UserType) String() string {
 
 // User belongs to only one Company
 type User struct {
-	ID           string `gorm:"primaryKey"`
-	Password     string
-	CompanyID    string
-	Email        string
-	PersistentID string
-	UserType     UserType
+	ID        string `gorm:"primaryKey"`
+	CompanyID string
+	Password  string
+	Email     string
+	UserType  UserType
 }
 
 func FindUser(id string) (*User, error) {
