@@ -8,6 +8,9 @@ IdP-initiated で SAML 認証する SP のサンプルアプリケーション�
 - セッション期限未設定
 - Single Logout 未対応（IdP-initiated の Single Logout を実装しているが、うまく動作していない）
 
+# 設計
+[design.md](https://github.com/ksrnnb/saml-impl/blob/main/design.md)
+
 # 使い方
 
 ## 1. 前提条件
