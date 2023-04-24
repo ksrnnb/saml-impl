@@ -50,6 +50,18 @@ func (s SamlIdPService) Parse(data []byte) (map[string]string, error) {
 		return nil, errors.New("sso url is not specified")
 	}
 
+	// SLO URL は HTTP POST Binding のみ対応
+	slourl := ""
+	for _, s := range idp.SingleLogoutServices {
+		if s.Binding == saml.HTTPPostBinding {
+			slourl = s.Location
+			break
+		}
+	}
+	if slourl == "" {
+		return nil, errors.New("slo url is not specified")
+	}
+
 	cert := ""
 	for _, k := range idp.KeyDescriptors {
 		if k.Use == "signing" {
@@ -57,13 +69,14 @@ func (s SamlIdPService) Parse(data []byte) (map[string]string, error) {
 			break
 		}
 	}
-	if ssourl == "" {
+	if cert == "" {
 		return nil, errors.New("idp certificate is not specified")
 	}
 
 	return map[string]string{
 		"idpEntityId":    md.EntityID,
 		"ssoUrl":         ssourl,
+		"sloUrl":         slourl,
 		"idpCertificate": cert,
 	}, nil
 }
@@ -95,6 +108,12 @@ func (s SamlIdPService) BuildIdPEntityDescriptor(md *model.IdPMetadata) (*saml.E
 						},
 					},
 					NameIDFormats: []saml.NameIDFormat{saml.NameIDFormat(saml.EmailAddressNameIDFormat)},
+					SingleLogoutServices: []saml.Endpoint{
+						{
+							Binding:  saml.HTTPPostBinding,
+							Location: md.SLOURL,
+						},
+					},
 				},
 				SingleSignOnServices: []saml.Endpoint{
 					{

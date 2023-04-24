@@ -39,7 +39,7 @@ func SingleLogout(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, "ユーザーがみつかりませんでした")
 	}
 
-	resp, err := ss.ServiceProvider.MakePostLogoutResponse(ss.ServiceProvider.GetSLOBindingLocation(saml.HTTPPostBinding), logoutRequest.ID)
+	resp, err := ss.ServiceProvider.MakePostLogoutResponse(logoutRequest.ID, "")
 	if err != nil {
 		return err
 	}

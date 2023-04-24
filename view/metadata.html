@@ -51,8 +51,9 @@
           <input type="text" name="acsurl" class="form-control" id="acsurl" value="{{ .SPMetadata.ACSURL }}" readonly>
         </div>
         <div class="mb-3">
-          <label for="slourl" class="form-label">SLO URL</label>
-          <input type="text" name="slourl" class="form-control" id="slourl" value="{{ .SPMetadata.SLOURL }}" readonly>
+          <label for="spslourl" class="form-label">SLO URL</label>
+          <input type="text" name="spslourl" class="form-control" id="spslourl" value="{{ .SPMetadata.SLOURL }}"
+            readonly>
         </div>
       </div>
     </div>
@@ -79,6 +80,11 @@
           <div class="mb-3">
             <label for="ssourl" class="form-label">SSO URL</label>
             <input type="text" name="ssourl" class="form-control" id="ssourl" value="{{ .IdPMetadata.SSOURL }}"
+              required>
+          </div>
+          <div class="mb-3">
+            <label for="slourl" class="form-label">Single Logout URL</label>
+            <input type="text" name="slourl" class="form-control" id="slourl" value="{{ .IdPMetadata.SLOURL }}"
               required>
           </div>
           <button type="submit" class="btn btn-primary">更新する</button>
@@ -111,10 +117,12 @@
       const eidElem = document.getElementById('entityID');
       const certElem = document.getElementById('certificate');
       const ssoElem = document.getElementById('ssourl');
+      const sloElem = document.getElementById('slourl');
 
       eidElem.value = json.idpEntityId || '';
       certElem.value = json.idpCertificate || '';
       ssoElem.value = json.ssoUrl || '';
+      sloElem.value = json.sloUrl || '';
     }
   };
 

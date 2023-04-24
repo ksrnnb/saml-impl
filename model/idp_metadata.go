@@ -13,18 +13,20 @@ type IdPMetadata struct {
 	EntityID    string
 	Certificate string
 	SSOURL      string
+	SLOURL      string
 }
 
 func (m IdPMetadata) TableName() string {
 	return "idp_metadatas"
 }
 
-func NewIdPMetadata(cid string, eid string, cert string, ssourl string) *IdPMetadata {
+func NewIdPMetadata(cid, eid, cert, ssourl, slourl string) *IdPMetadata {
 	return &IdPMetadata{
 		CompanyID:   cid,
 		EntityID:    eid,
 		Certificate: cert,
 		SSOURL:      ssourl,
+		SLOURL:      slourl,
 	}
 }
 
@@ -55,5 +57,5 @@ func (m *IdPMetadata) Save() error {
 }
 
 func (m *IdPMetadata) Valid() bool {
-	return m.ID != 0 && m.CompanyID != "" && m.EntityID != "" && m.Certificate != "" && m.SSOURL != ""
+	return m.ID != 0 && m.CompanyID != "" && m.EntityID != "" && m.Certificate != "" && m.SSOURL != "" && m.SLOURL != ""
 }

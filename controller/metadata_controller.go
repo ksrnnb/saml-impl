@@ -72,6 +72,7 @@ func CreateMetadata(c echo.Context) error {
 		c.FormValue("entityID"),
 		c.FormValue("certificate"),
 		c.FormValue("ssourl"),
+		c.FormValue("slourl"),
 	)
 	m.Save()
 	err = session.Set(c, "success", "メタデータを更新しました")
