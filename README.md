@@ -6,7 +6,7 @@ IdP-initiated で SAML 認証する SP のサンプルアプリケーション�
 
 - CSRF 対策などの不備
 - セッション期限未設定
-- Single Logout 未対応（IdP-initiated の Single Logout を実装しているが、うまく動作していない）
+- SingleLogout の Response 未署名（仕様では MUST）
 
 # 設計
 [design.md](https://github.com/ksrnnb/saml-impl/blob/main/design.md)
@@ -95,10 +95,17 @@ SAML 認証後、下の画面のように「SAML 認証に成功しました」�
 
 ![SAML認証後の画面](https://user-images.githubusercontent.com/48155865/233212172-290d5b69-a97c-4d0d-a857-d1aecc4478a2.png)
 
-## 7. SP-initiated で SAML 認証する
-いったん SP と IdP の両方でログアウトしておきます。
+## 8. IdP-initiated でログアウトする
+[IdP のページ](http://localhost:8080/admin/master/console) に遷移して、ログアウトします。Single Logout の設定が正しくできていれば、SP もログアウトされます。
 
-SP-initiated の SAML 認証画面は http://localhost:3000/login/38azqp4z になります。各 Company ごとにログイン画面が存在するイメージになります。
+## 9. SP-initiated で SAML 認証する
+
+SP-initiated の認証ページは、トップページの「SAML SSO でログインする」リンクから表示できます。
+![ログイン画面](https://user-images.githubusercontent.com/48155865/234134503-760f3cb5-43a8-412c-aa18-688c764f2151.png)
+
+ページを表示すると、会社IDの入力が求められるので、表示されている表の ID を入力します。正しいIDを入力してからボタンをクリックすると、 SP-initiated による SAML 認証が開始します。
+
+![SP-initiated 認証画面](https://user-images.githubusercontent.com/48155865/234134609-38db58f6-6f56-4628-83e4-f7c1b4ad34be.png)
 
 ## 8. 立ち下げ
 
