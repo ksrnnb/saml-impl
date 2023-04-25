@@ -107,6 +107,25 @@ func (s *SamlService) ParseReponse(r *http.Request, possibleRequestIDs []string)
 	return &Assertion{sa: sa}, nil
 }
 
+func (s *SamlService) ParseLogoutRequest(samlrequest string) (*LogoutRequest, error) {
+	rawRequestBuf, err := base64.StdEncoding.DecodeString(samlrequest)
+	if err != nil {
+		return nil, err
+	}
+	var logoutRequest saml.LogoutRequest
+	if err := xml.Unmarshal(rawRequestBuf, &logoutRequest); err != nil {
+		return nil, err
+	}
+	if logoutRequest.Destination != s.ss.SLOURL().String() {
+		return nil, errors.New("invalid Destination")
+	}
+	if logoutRequest.Issuer.Value != s.md.EntityID {
+		return nil, errors.New("invalid Issuer")
+	}
+	// TODO: 署名の検証
+	return &LogoutRequest{lr: logoutRequest}, nil
+}
+
 type Assertion struct {
 	sa *saml.Assertion
 }
@@ -123,6 +142,18 @@ func (a *Assertion) SessionTTL() int {
 		}
 	}
 	return 0
+}
+
+type LogoutRequest struct {
+	lr saml.LogoutRequest
+}
+
+func (r *LogoutRequest) NameID() string {
+	return r.lr.NameID.Value
+}
+
+func (r *LogoutRequest) ID() string {
+	return r.lr.ID
 }
 
 func elementToBytes(el *etree.Element) ([]byte, error) {
