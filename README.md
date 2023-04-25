@@ -1,5 +1,5 @@
 # SAML
-IdP-initiated で SAML 認証する SP のサンプルアプリケーションです
+SP-initiated / IdP-initiated で SAML 認証する SP のサンプルアプリケーションです
 
 # 注意
 このサンプルアプリケーションは未実装の部分があり、不完全なアプリケーションなので注意が必要です。
