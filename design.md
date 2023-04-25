@@ -17,9 +17,10 @@ graph LR
 ## 実装しないこと
 - ユーザーの追加・更新・削除
 - 会社の追加・更新・削除
+- Single Logout の署名（仕様では MUST）
 - SP-initiated Single Logout
 - persistent id への対応
-- Just In Provisioning
+- Just In Time Provisioning
 - SAML 機能の有効化・無効化
 
 # 詳細
@@ -105,7 +106,9 @@ sequenceDiagram
 ```
 
 ## ログアウト
-今回は IdP-initiated のみ対応する。ユーザーの情報からセッションキーを推測することはできないので、Invalidation によりセッションを無効化する。
+今回は IdP-initiated のみ対応する。また、仕様では署名が MUST であるが、簡単のため今回は対応しない。
+
+ログアウト時、ユーザーの情報からセッションキーを推測することはできないので、Invalidation によりセッションを無効化する。
 
 ### IdP-initiated Single Logout
 
