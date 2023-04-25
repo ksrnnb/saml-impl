@@ -71,9 +71,11 @@ func Login(c echo.Context) error {
 	if err := session.Clear(c); err != nil {
 		return errorRedirectToLogin(c, unexpectedMessage)
 	}
-	if _, err := session.Start(c); err != nil {
+	sid, err := session.Start(c)
+	if err != nil {
 		return errorRedirectToLogin(c, unexpectedMessage)
 	}
+	session.Add(c, sid, "userId", uid)
 	session.Activate(uid)
 	return c.Redirect(http.StatusFound, "/")
 }
