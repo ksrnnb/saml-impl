@@ -5,7 +5,9 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"net/http"
 	"net/url"
+	"time"
 
 	"github.com/beevik/etree"
 	"github.com/crewjam/saml"
@@ -95,6 +97,32 @@ func (s *SamlService) BuildSamlResponse(samlResponse string) (saml.Response, err
 		return saml.Response{}, fmt.Errorf("cannot unmarshal response: %v", err)
 	}
 	return response, nil
+}
+
+func (s *SamlService) ParseReponse(r *http.Request, possibleRequestIDs []string) (*Assertion, error) {
+	sa, err := s.ServiceProvider.ParseResponse(r, possibleRequestIDs)
+	if err != nil {
+		return nil, err
+	}
+	return &Assertion{sa: sa}, nil
+}
+
+type Assertion struct {
+	sa *saml.Assertion
+}
+
+func (a *Assertion) NameID() string {
+	return a.sa.Subject.NameID.Value
+}
+
+func (a *Assertion) SessionTTL() int {
+	for _, stmt := range a.sa.AuthnStatements {
+		if !stmt.SessionNotOnOrAfter.IsZero() {
+			ttl := stmt.SessionNotOnOrAfter.Sub(time.Now())
+			return int(ttl.Seconds())
+		}
+	}
+	return 0
 }
 
 func elementToBytes(el *etree.Element) ([]byte, error) {

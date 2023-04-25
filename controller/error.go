@@ -8,12 +8,12 @@ import (
 )
 
 func errorRedirectToLogin(c echo.Context, msg string) error {
-	session.Set(c, "error", msg)
+	session.SetFlash(c, "error", msg)
 	return errorRedirect(c, "/login")
 }
 
 func errorRedirectToSAMLLogin(c echo.Context, msg string) error {
-	session.Set(c, "error", msg)
+	session.SetFlash(c, "error", msg)
 	return errorRedirect(c, "/login/saml")
 }
 

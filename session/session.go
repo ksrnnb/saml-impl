@@ -17,7 +17,15 @@ const (
 
 const sessionLength = 32
 
-func Set(c echo.Context, key string, value string) error {
+func Start(c echo.Context) (string, error) {
+	return start(c, 0)
+}
+
+func StartWithTTL(c echo.Context, ttl int) (string, error) {
+	return start(c, ttl)
+}
+
+func start(c echo.Context, ttl int) (string, error) {
 	ck, err := c.Cookie(sessionKey)
 	var sid string
 	if err == nil {
@@ -26,7 +34,7 @@ func Set(c echo.Context, key string, value string) error {
 		if errors.Is(err, http.ErrNoCookie) {
 			sid, err = generateSessionID()
 			if err != nil {
-				return err
+				return "", err
 			}
 			c.SetCookie(
 				&http.Cookie{
@@ -34,17 +42,27 @@ func Set(c echo.Context, key string, value string) error {
 					Value:    sid,
 					HttpOnly: true,
 					Path:     "/",
+					MaxAge:   ttl,
 				},
 			)
 		} else {
-			return err
+			return "", err
 		}
 	}
 	ss := getSessionStore(sid)
-	ss[key] = value
 	kvs.Set(sid, ss)
 
-	return nil
+	return sid, nil
+}
+
+func Add(c echo.Context, sessionID string, key string, value string) {
+	add(c, sessionID, key, value)
+}
+
+func add(c echo.Context, sessionID, key string, value string) {
+	ss := getSessionStore(sessionID)
+	ss[key] = value
+	kvs.Set(sessionID, ss)
 }
 
 func Get(c echo.Context, key string) (string, error) {

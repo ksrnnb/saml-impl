@@ -24,7 +24,7 @@ func ConsumeAssertion(c echo.Context) error {
 		possibleRequestIDs = append(possibleRequestIDs, "")
 	}
 
-	assertion, err := ss.ServiceProvider.ParseResponse(r, possibleRequestIDs)
+	assertion, err := ss.ParseReponse(r, possibleRequestIDs)
 	if err != nil {
 		return errorRedirectToLogin(c, err.Error())
 	}
@@ -36,7 +36,7 @@ func ConsumeAssertion(c echo.Context) error {
 	}
 
 	// SAML 認証成功後
-	email := assertion.Subject.NameID.Value
+	email := assertion.NameID()
 	u, err := model.FindUserByEmail(email)
 	if err != nil {
 		return c.String(http.StatusBadRequest, "ユーザーがみつかりませんでした")
@@ -46,8 +46,12 @@ func ConsumeAssertion(c echo.Context) error {
 		return c.String(http.StatusBadRequest, err.Error())
 	}
 
-	session.Set(c, "userId", u.ID)
-	session.Set(c, "success", "SAML 認証に成功しました")
+	sid, err := session.StartWithTTL(c, assertion.SessionTTL())
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
+	}
+	session.Add(c, sid, "userId", u.ID)
+	session.Add(c, sid, "success", "SAML 認証に成功しました")
 	session.Activate(u.ID)
 
 	redirect := "/"

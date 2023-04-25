@@ -21,7 +21,7 @@ func ShowSAMLLogin(c echo.Context) error {
 	if err != nil || uid != "" {
 		return err
 	}
-	errMsg, err := session.Get(c, "error")
+	errMsg, err := session.GetFlash(c, "error")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}

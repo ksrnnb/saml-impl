@@ -29,7 +29,7 @@ func ShowLogin(c echo.Context) error {
 	if err != nil || uid != "" {
 		return err
 	}
-	errMsg, err := session.Get(c, "error")
+	errMsg, err := session.GetFlash(c, "error")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -71,7 +71,7 @@ func Login(c echo.Context) error {
 	if err := session.Clear(c); err != nil {
 		return errorRedirectToLogin(c, unexpectedMessage)
 	}
-	if err := session.Set(c, "userId", uid); err != nil {
+	if _, err := session.Start(c); err != nil {
 		return errorRedirectToLogin(c, unexpectedMessage)
 	}
 	session.Activate(uid)

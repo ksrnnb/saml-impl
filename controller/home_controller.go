@@ -12,7 +12,7 @@ func Home(c echo.Context) error {
 	if err != nil || u == nil {
 		return err
 	}
-	msg, err := session.Get(c, "success")
+	msg, err := session.GetFlash(c, "success")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}

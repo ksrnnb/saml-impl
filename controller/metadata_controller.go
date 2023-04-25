@@ -29,7 +29,7 @@ func Metadata(c echo.Context) error {
 	s := samlSPService(u.CompanyID)
 	spMD := s.SPMetadata()
 
-	sm, err := session.Get(c, "success")
+	sm, err := session.GetFlash(c, "success")
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
@@ -75,10 +75,8 @@ func CreateMetadata(c echo.Context) error {
 		c.FormValue("slourl"),
 	)
 	m.Save()
-	err = session.Set(c, "success", "メタデータを更新しました")
-	if err != nil {
-		return err
-	}
+	session.SetFlash(c, "success", "メタデータを更新しました")
+
 	return c.Redirect(http.StatusFound, "/metadata")
 }
 
