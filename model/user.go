@@ -7,11 +7,11 @@ import (
 )
 
 const defaultUserID = "demo"
-const defaultPassword = "&!6Z9@K3f"
+const defaultPassword = "demo"
 const defaultEmail = "demo@test.com"
 
 const adminUserID = "admin"
-const adminPassword = "k4s60#lkf"
+const adminPassword = "admin"
 const adminEmail = "admin@test.com"
 
 type UserType uint8
