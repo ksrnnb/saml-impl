@@ -61,16 +61,14 @@ SP-initiated と IdP-initiated の両方に対応する。
 ### SP-initiated SSO
 
 1. SAML SSO でログイン
-2. IdP SSO URL にリダイレクトするレスポンスを返す。必要であれば、RelayState も返す。
-    - このとき、Request の ID を Key Value Store に格納する。（セッションに追加しても ACS URL では Cookie が送られず、取得できないため。）
-    - 今回は簡単のため、Key Value Store はインメモリとする。
+2. IdP SSO URL にリダイレクトするレスポンスを返す。必要であれば、RelayState も返す。このとき、セッションを利用して Request の ID を保存する。
 3. そのままリダイレクトする。
 4. IdP の認証画面を返す。認証済みの場合はスキップされる。
 5. 認証する。
 6. HTML レスポンスを返す。HTML には JavaScript のコードが含まれる。
 7. JavaScript が実行され、HTTP POST Binding で SAMLResponse を ACS URL に送信する。
-    - Cookie は送信されないので注意が必要（Cookie を送信したい場合は、SameSite 属性などの設定が必要となる）
-    - このとき InResponseTo の値が 2. で格納した Key Value Store に存在するかどうか検証を行う。存在しない場合は不正なリクエストとして扱う。存在した場合は削除する。
+    - クロスオリジンではあるが、Cookie は送信される。IdP から送られる HTML レスポンスは、JavaScript で form を submit するようになっているので、[単純リクエスト](https://developer.mozilla.org/ja/docs/Web/HTTP/CORS#%E5%8D%98%E7%B4%94%E3%83%AA%E3%82%AF%E3%82%A8%E3%82%B9%E3%83%88)に相当する。
+    - したがって、2番で保存した Request の ID を取得し、 InResponseTo を検証できる。
 8. RelayState に応じてリダイレクト先を決めて、レスポンスを返す。
 
 ```mermaid
