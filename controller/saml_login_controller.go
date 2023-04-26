@@ -55,10 +55,16 @@ func SAMLLogin(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	u, err := ss.MakeAuthnRequestURL("")
+	reqID, u, err := ss.MakeAuthnRequestURL("")
 	if err != nil {
 		return err
 	}
 
+	sid, err := session.Start(c)
+	if err != nil {
+		return err
+	}
+
+	session.Add(c, sid, "RequestID", reqID)
 	return c.Redirect(http.StatusFound, u.String())
 }

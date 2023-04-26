@@ -57,26 +57,27 @@ func NewSamlService(companyID string) (*SamlService, error) {
 	return &SamlService{samlsp, ss, is, md}, nil
 }
 
-func (s *SamlService) MakeAuthnRequestURL(relayState string) (*url.URL, error) {
+func (s *SamlService) MakeAuthnRequestURL(relayState string) (string, *url.URL, error) {
 	req, err := s.ServiceProvider.MakeAuthenticationRequest(s.ServiceProvider.GetSSOBindingLocation(saml.HTTPRedirectBinding), saml.HTTPRedirectBinding, saml.HTTPPostBinding)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
-	AddRequestID(req.ID)
-	return req.Redirect(relayState, &s.ServiceProvider)
+	u, err := req.Redirect(relayState, &s.ServiceProvider)
+	return req.ID, u, err
 }
 
-func (s *SamlService) ValidateInResponseTo(samlResponse string) error {
+func (s *SamlService) ValidateInResponseTo(samlResponse string, requestID string) error {
 	// AllowIdPInitiated == true の場合は InResponseTo を検証しないようになっているので自前で検証する
 	samlRes, err := s.BuildSamlResponse(samlResponse)
 	if err != nil {
 		return err
 	}
-	if samlRes.InResponseTo != "" {
-		if !ExistsRequestID(samlRes.InResponseTo) {
-			return errors.New("InResponseTo is invalid")
-		}
-		DeleteRequestID(samlRes.InResponseTo)
+	if samlRes.InResponseTo == "" {
+		return nil
+	}
+
+	if samlRes.InResponseTo != requestID {
+		return errors.New("invalid Request ID")
 	}
 	return nil
 }
@@ -99,7 +100,7 @@ func (s *SamlService) BuildSamlResponse(samlResponse string) (saml.Response, err
 	return response, nil
 }
 
-func (s *SamlService) ParseReponse(r *http.Request, possibleRequestIDs []string) (*Assertion, error) {
+func (s *SamlService) ParseResponse(r *http.Request, possibleRequestIDs []string) (*Assertion, error) {
 	sa, err := s.ServiceProvider.ParseResponse(r, possibleRequestIDs)
 	if err != nil {
 		return nil, err

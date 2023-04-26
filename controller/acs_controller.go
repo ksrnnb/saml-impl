@@ -19,19 +19,22 @@ func ConsumeAssertion(c echo.Context) error {
 	r := c.Request()
 	r.ParseForm()
 
-	possibleRequestIDs := service.ListRequestIDs()
+	possibleRequestIDs := []string{}
 	if ss.ServiceProvider.AllowIDPInitiated {
 		possibleRequestIDs = append(possibleRequestIDs, "")
 	}
-
-	assertion, err := ss.ParseReponse(r, possibleRequestIDs)
+	assertion, err := ss.ParseResponse(r, possibleRequestIDs)
 	if err != nil {
 		return errorRedirectToLogin(c, err.Error())
 	}
 
+	rid, err := session.Get(c, "RequestID")
+	if err != nil {
+		return errorRedirectToLogin(c, err.Error())
+	}
 	// AllowIDPInitiated == true の場合は、 SP-initiated のリクエストが来ても
 	// InResponseTo は検証しないようになっているので自前で検証する
-	if err := ss.ValidateInResponseTo(c.FormValue("SAMLResponse")); err != nil {
+	if err := ss.ValidateInResponseTo(c.FormValue("SAMLResponse"), rid); err != nil {
 		return errorRedirectToLogin(c, err.Error())
 	}
 
