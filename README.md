@@ -23,13 +23,11 @@ make run
 ```
 
 ## 3. IdP に SP のメタデータを登録
-まずは SP ( http://localhost:3000 ) にログインして、必要となるメタデータを確認します。
+まずは SP ( http://localhost:3000 ) に admin アカウントでログインして、必要となるメタデータを確認します。 admin 以外のアカウントはパスワードログインできないようにしているので注意してください。
 
 ![SP メタデータ画面](https://user-images.githubusercontent.com/48155865/233210659-15f6b24e-e879-470f-a31a-3922fff65f25.png)
 
-
 次に別タブを開いて、 keycloak ( http://localhost:8080 ) にログインして、必要となるメタデータを登録します。
-
 
 ### IdP ログイン
 下記情報で admin console にログインします。
